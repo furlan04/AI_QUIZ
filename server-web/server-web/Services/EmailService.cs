@@ -1,15 +1,16 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Options;
+using System.Net;
 using System.Net.Mail;
 
 namespace server_web.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly EmailSettings _emailSettings;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IOptions<EmailSettings> emailOptions)
         {
-            _configuration = configuration;
+            _emailSettings = emailOptions.Value;
         }
 
         public async Task SendEmailConfirmationAsync(string email, string confirmationLink)
@@ -28,17 +29,15 @@ namespace server_web.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var smtpSettings = _configuration.GetSection("EmailSettings");
-
-            using var client = new SmtpClient(smtpSettings["SmtpServer"], int.Parse(smtpSettings["SmtpPort"]!))
+            using var client = new SmtpClient(_emailSettings.SmtpServer, int.Parse(_emailSettings.SmtpPort!))
             {
-                Credentials = new NetworkCredential(smtpSettings["SmtpUsername"], smtpSettings["SmtpPassword"]),
-                EnableSsl = bool.Parse(smtpSettings["EnableSsl"] ?? "true")
+                Credentials = new NetworkCredential(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword),
+                EnableSsl = bool.Parse(_emailSettings.EnableSsl ?? "true")
             };
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(smtpSettings["FromEmail"]!, smtpSettings["FromName"]),
+                From = new MailAddress(_emailSettings.FromEmail!, _emailSettings.FromName),
                 Subject = subject,
                 Body = htmlMessage,
                 IsBodyHtml = true
