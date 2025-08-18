@@ -31,6 +31,7 @@ namespace server_web.Model
         public ApplicationUser User { get; set; } = null!;
 
         // Navigazione verso le domande (sempre 10)
+        [JsonIgnore]
         public ICollection<Question> Questions { get; set; } = new List<Question>();
 
         // Navigazione verso i tentativi di completamento

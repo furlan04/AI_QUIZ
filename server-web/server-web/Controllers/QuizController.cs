@@ -25,32 +25,13 @@ namespace server_web.Controllers
             _userManager = userManager;
             _quizService = quizService;
         }
-        [HttpGet("debug-claims")]
-        public IActionResult DebugClaims()
-        {
-            return Ok(new
-            {
-                IsAuthenticated = User.Identity?.IsAuthenticated,
-                AuthenticationType = User.Identity?.AuthenticationType,
-                Claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToArray(),
-                NameIdentifier = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                UserManagerId = _userManager.GetUserId(User)
-            });
-        }
-        [AllowAnonymous]
-        [HttpGet("test-quiz-generation")]
-        public async Task<IActionResult> GenerationTest()
-        {
-            var resp = await _quizService.GenerateQuizAsync("geografia italiana");
-            return Ok(resp);
-        }
         // GET: api/Quiz
+        [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes()
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes(string userId)
         {
-            var user = await _userManager.GetUserAsync(User);
             var quizzes = await _context.Quizzes
-                .Where(q => q.UserId == user.Id)
+                .Where(q => q.UserId == userId)
                 .ToListAsync();
 
             return Ok(quizzes);
@@ -61,13 +42,22 @@ namespace server_web.Controllers
         public async Task<ActionResult<Quiz>> GetQuiz(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
             var quiz = await _context.Quizzes
-                .FirstOrDefaultAsync(q => q.Id == id && q.UserId == user.Id);
+                .Include(q => q.Questions)
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (quiz == null)
                 return NotFound();
 
-            return Ok(quiz);
+            Console.WriteLine($"Quiz trovato: {quiz.Id}, Numero domande: {quiz.Questions?.Count ?? 0}");
+
+            var return_obj = new QuizDto(quiz);
+
+            return Ok(return_obj);
         }
 
         // POST: api/Quiz
@@ -91,6 +81,7 @@ namespace server_web.Controllers
             {
                 q.QuizId = quiz.Id;
                 _context.Questions.Add(q);
+                await _context.SaveChangesAsync();
             }
 
             await _context.SaveChangesAsync();
@@ -103,6 +94,10 @@ namespace server_web.Controllers
         public async Task<IActionResult> DeleteQuiz(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
             var quiz = await _context.Quizzes
                 .FirstOrDefaultAsync(q => q.Id == id && q.UserId == user.Id);
 
