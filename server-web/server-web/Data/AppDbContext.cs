@@ -105,15 +105,18 @@ namespace server_web.Data
             });
 
             builder.Entity<Friendship>()
-                .HasKey(f => new { f.SenderId, f.ReceiverId });
+                .HasKey(f => f.Id);
 
             builder.Entity<Friendship>()
-            .HasOne(f => f.SendingUser)
-            .WithMany(u => u.SentRequests)
-            .HasForeignKey(f => f.SenderId)
-            .OnDelete(DeleteBehavior.Restrict);
+                .HasIndex(f => new { f.SenderId, f.ReceiverId })
+                .IsUnique();
 
-            // Relazione Receiver
+            builder.Entity<Friendship>()
+                .HasOne(f => f.SendingUser)
+                .WithMany(u => u.SentRequests)
+                .HasForeignKey(f => f.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<Friendship>()
                 .HasOne(f => f.ReceivingUser)
                 .WithMany(u => u.ReceivedRequests)

@@ -22,73 +22,56 @@ namespace server_web.Controllers
             _context = context;
             _userManager = userManager;
         }
-        [HttpGet("requests")]
-        public async Task<ActionResult<FriendshipRequestListDto>> MyRequests()
+        [HttpGet("requests/")]
+        public async Task<ActionResult<IEnumerable<Friendship>>> MyRequests()
         {
             var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null)
-            {
-                return BadRequest("not logged in");
-            }
-            var received = await _context.Friendships.Where(f => f.ReceiverId == current_user.Id).ToListAsync();
-            var sent = await _context.Friendships.Where(f => f.SenderId == current_user.Id).ToListAsync();
-            FriendshipRequestListDto friendshipRequestListDto = new FriendshipRequestListDto(sent, received);
-            return Ok(friendshipRequestListDto);
+            if (current_user == null) return BadRequest("not logged in");
+
+            var received = await _context.Friendships.Where(f => f.ReceiverId == current_user.Id && !f.Accepted).ToListAsync();
+            return Ok(received);
         }
-        [HttpPost("send-request")]
-        public async Task<ActionResult<Friendship>> SendRequest(SendFriendRequestDto requestInfo)
+        [HttpPost("send-request/{email}")]
+        public async Task<ActionResult<Friendship>> SendRequest(string email)
         {
             var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null)
-            {
-                return BadRequest("not logged in");
-            }
-            var requested_user = await _context.Users.FindAsync(requestInfo.Receiver);
-            if (requested_user == null)
-            {
-                return BadRequest("user does not exist");
-            }
-            var existsAlreadyARequest = !_context.Friendships.Where(f => f.ReceiverId == requested_user.Id && f.SenderId == current_user.Id).IsNullOrEmpty();
-            if (existsAlreadyARequest)
-            {
-                return BadRequest("friend request already sent");
-            }
-            var existsOpposite = !_context.Friendships.Where(f => f.ReceiverId == current_user.Id && f.SenderId == requested_user.Id).IsNullOrEmpty();
-            if (existsOpposite)
-            {
-                return await AcceptRequest(new FriendshipDto(requested_user.Id, current_user.Id));
-            }
+            if (current_user == null) return BadRequest("not logged in");
+
+            var requested_user = await _userManager.FindByEmailAsync(email);
+            if (requested_user == null) return BadRequest("user does not exist");
+
+            var existsAlreadyARequest = !_context.Friendships
+                .Where(f => f.ReceiverId == requested_user.Id && f.SenderId == current_user.Id).IsNullOrEmpty();
+            if (existsAlreadyARequest) return BadRequest("friend request already sent");
+
+            var existsOpposite = await _context.Friendships
+                .Where(f => f.ReceiverId == current_user.Id && f.SenderId == requested_user.Id).FirstOrDefaultAsync();
+            if (existsOpposite != null) return await AcceptRequest(existsOpposite.Id);
+
             Friendship friendship = new Friendship(current_user.Id, requested_user.Id);
             _context.Friendships.Add(friendship);
             _context.SaveChanges();
+
             return Ok(friendship);
         }
-        [HttpPut("accept-request")]
-        public async Task<ActionResult<Friendship>> AcceptRequest(FriendshipDto friendship)
+        [HttpPut("accept-request/{friendshipId}")]
+        public async Task<ActionResult<Friendship>> AcceptRequest(Guid friendshipId)
         {
             var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null)
-            {
-                return BadRequest("not logged in");
-            }
-            if (friendship.ReceiverId != current_user.Id)
-            {
-                return BadRequest("you cannot accept this friend request");
-            }
-            var requested_user = await _context.Users.FindAsync(friendship.SenderId);
-            if (requested_user == null)
-            {
-                return BadRequest("user does not exist");
-            }
-            var request = await _context.Friendships.Where(f => f.SenderId == friendship.SenderId && f.ReceiverId == friendship.ReceiverId).FirstOrDefaultAsync();
-            if (request == null)
-            {
-                return BadRequest("friend request does not exist");
-            }
-            if (request.Accepted)
-            {
-                return BadRequest("request already accepted");
-            }
+            if (current_user == null) return BadRequest("not logged in");
+
+            var request = await _context.Friendships.FindAsync(friendshipId);
+
+            if(request == null) return BadRequest("request doesn't exist");
+
+            if (request.ReceiverId != current_user.Id) return BadRequest("you cannot accept this friend request");
+
+            var requested_user = await _context.Users.FindAsync(request.SenderId);
+
+            if (requested_user == null) return BadRequest("user does not exist");
+
+            if (request.Accepted) return BadRequest("request already accepted");
+
             request.Accepted = true;
             _context.SaveChanges();
             return Ok(request);
@@ -103,17 +86,15 @@ namespace server_web.Controllers
                 return BadRequest("not logged in");
             }
 
-            var friendships = _context.Friendships
-                .Where(f => f.Accepted && (f.SenderId == current_user.Id || f.ReceiverId == current_user.Id));
-
-            var friends = await friendships
+            var friendships = await _context.Friendships
+                .Where(f => f.Accepted && (f.SenderId == current_user.Id || f.ReceiverId == current_user.Id))
                 .Select(f => new FriendDto(f.SenderId == current_user.Id ? f.ReceiverId : f.SenderId))
                 .ToListAsync();
 
-            return Ok(friends);
+            return Ok(friendships);
         }
-        [HttpDelete("remove-friendship")]
-        public async Task<ActionResult> RemoveFrienship(FriendshipDto friendshipDto)
+        [HttpDelete("remove-friendship/{friendshipId}")]
+        public async Task<ActionResult> RemoveFrienship(Guid friendshipId)
         {
             var current_user = await _userManager.GetUserAsync(User);
 
@@ -122,7 +103,7 @@ namespace server_web.Controllers
                 return BadRequest("not logged in");
             }
 
-            var request = await _context.Friendships.Where(f => f.SenderId == friendshipDto.SenderId && f.ReceiverId == friendshipDto.ReceiverId).FirstOrDefaultAsync();
+            var request = await _context.Friendships.FindAsync(friendshipId);
             
             if (request == null)
             {
@@ -138,7 +119,7 @@ namespace server_web.Controllers
 
             _context.SaveChanges();
 
-            return Ok(friendshipDto);
+            return Ok(request);
         }
     }
 }

@@ -6,6 +6,8 @@ namespace server_web.Model
 {
     public class Friendship
     {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public string SenderId { get; set; } = null!;
         [ForeignKey("SenderId")]

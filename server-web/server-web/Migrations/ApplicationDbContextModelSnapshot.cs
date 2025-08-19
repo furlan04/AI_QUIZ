@@ -220,18 +220,27 @@ namespace server_web.Migrations
 
             modelBuilder.Entity("server_web.Model.Friendship", b =>
                 {
-                    b.Property<string>("SenderId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ReceiverId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
                     b.Property<bool>("Accepted")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasKey("SenderId", "ReceiverId");
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId", "ReceiverId")
+                        .IsUnique();
 
                     b.ToTable("Friendships");
                 });

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server_web.Migrations
 {
     /// <inheritdoc />
-    public partial class changeofquestionpk : Migration
+    public partial class addedfriendshipid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -200,6 +200,7 @@ namespace server_web.Migrations
                 name: "Friendships",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     SenderId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ReceiverId = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -208,7 +209,7 @@ namespace server_web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Friendships", x => new { x.SenderId, x.ReceiverId });
+                    table.PrimaryKey("PK_Friendships", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Friendships_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
@@ -383,6 +384,12 @@ namespace server_web.Migrations
                 name: "IX_Friendships_ReceiverId",
                 table: "Friendships",
                 column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Friendships_SenderId_ReceiverId",
+                table: "Friendships",
+                columns: new[] { "SenderId", "ReceiverId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_QuizId_Order",

@@ -61,19 +61,19 @@ namespace server_web.Controllers
         }
 
         // POST: api/Quiz
-        [HttpPost]
-        public async Task<ActionResult<Quiz>> CreateQuiz(CreateQuizDto createQuiz)
+        [HttpPost("{topic}")]
+        public async Task<ActionResult<Quiz>> CreateQuiz(string topic)
         {
             var user = await _userManager.GetUserAsync(User);
 
             if(user == null)
                 return Unauthorized();
 
-            var quiz = await _quizService.GenerateQuizAsync(createQuiz.Topic);
+            var quiz = await _quizService.GenerateQuizAsync(topic);
             
             quiz.UserId = user.Id;
-            quiz.Title = createQuiz.Topic;
-            quiz.Description = createQuiz.Topic;
+            quiz.Title = topic;
+            quiz.Description = topic;
 
             _context.Quizzes.Add(quiz);
 
