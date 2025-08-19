@@ -4,6 +4,6 @@ namespace server_web.Services
 {
     public interface IQuizService
     {
-        Task<Quiz> GenerateQuizAsync(string topic);
+        Task<GeneratedQuiz> GenerateQuizAsync(string topic);
     }
 }

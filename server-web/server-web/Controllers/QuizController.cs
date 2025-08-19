@@ -7,6 +7,7 @@ using server_web.Model;
 using server_web.Model.Dto;
 using server_web.Services;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace server_web.Controllers
 {
@@ -69,19 +70,28 @@ namespace server_web.Controllers
             if(user == null)
                 return Unauthorized();
 
-            var quiz = await _quizService.GenerateQuizAsync(topic);
-            
-            quiz.UserId = user.Id;
-            quiz.Title = topic;
-            quiz.Description = topic;
+            var generated_quiz = await _quizService.GenerateQuizAsync(topic);
+
+            var quiz = new Quiz
+            {
+                Title = generated_quiz.Title,
+                Description = generated_quiz.Description,
+                UserId = user.Id,
+            };
 
             _context.Quizzes.Add(quiz);
 
-            foreach (var q in quiz.Questions)
+            foreach (var q in generated_quiz.Questions)
             {
-                q.QuizId = quiz.Id;
-                _context.Questions.Add(q);
-                await _context.SaveChangesAsync();
+                var question = new Question
+                {
+                    QuizId = quiz.Id,
+                    OptionsJson = JsonSerializer.Serialize(q.Options),
+                    Text = q.Text,
+                    CorrectAnswerIndex = q.CorrectAnswerIndex,
+                    Order = q.Order,
+                };
+                _context.Questions.Add(question);
             }
 
             await _context.SaveChangesAsync();

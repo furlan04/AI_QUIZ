@@ -15,20 +15,21 @@ public class QuizService : IQuizService
         _llmSettings = llmOptions.Value;
     }
 
-    public async Task<Quiz> GenerateQuizAsync(string topic)
+    public async Task<GeneratedQuiz> GenerateQuizAsync(string topic)
     {
         var prompt = $@"
 Genera un quiz di 10 domande a risposta multipla sul tema '{topic}'.
 Rispondi SOLO in JSON con la seguente struttura:
 
 {{
-  ""topic"": ""{topic}"",
-  ""questions"": [
+  ""Title"": ""genera un titolo per il topic di poche parole"",
+  ""Description"": ""{topic}"",
+  ""Questions"": [
     {{
-      ""order"": numero intero della domanda da 1 a 10,
-      ""text"": ""Domanda 1"",
-      ""options"": [""Opzione A"", ""Opzione B"", ""Opzione C"", ""Opzione D""],
-      ""correctAnswerIndex"": 1
+      ""Order"": numero intero della domanda da 1 a 10,
+      ""Text"": ""Domanda 1"",
+      ""Options"": [""Opzione A"", ""Opzione B"", ""Opzione C"", ""Opzione D""],
+      ""CorrectAnswerIndex"": 1
     }}
   ]
 }}";
@@ -61,11 +62,7 @@ Rispondi SOLO in JSON con la seguente struttura:
 
         Console.WriteLine(content);
 
-        // Deserializza il JSON prodotto dal modello in un oggetto Quiz
-        var quiz = JsonSerializer.Deserialize<Quiz>(content, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        GeneratedQuiz quiz = JsonSerializer.Deserialize<GeneratedQuiz>(content);
 
         return quiz!;
     }

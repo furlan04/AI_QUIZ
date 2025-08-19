@@ -10,7 +10,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Legge la stringa di connessione
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("Development");
 
 // Configura EF Core con Pomelo per MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -31,7 +31,7 @@ builder.Services.Configure<LLMSettings>(
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));
 
-// Oppure, se vuoi subito un’istanza concreta:
+// Oppure, se vuoi subito unï¿½istanza concreta:
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 
 builder.Services.AddAuthentication(options =>
