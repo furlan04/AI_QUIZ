@@ -98,24 +98,15 @@ namespace server_web.Controllers
         {
             var current_user = await _userManager.GetUserAsync(User);
 
-            if (current_user == null)
-            {
-                return BadRequest("not logged in");
-            }
+            if (current_user == null) return BadRequest("not logged in");
 
             var request = await _context.Friendships.FindAsync(friendshipId);
             
-            if (request == null)
-            {
-                return BadRequest("friend request does not exist");
-            }
+            if (request == null) return BadRequest("friend request does not exist");
 
             var remove = _context.Remove(request);
 
-            if (remove == null)
-            {
-                return BadRequest("couldn't remove frienship");
-            }
+            if (remove == null) return BadRequest("couldn't remove frienship");
 
             _context.SaveChanges();
 

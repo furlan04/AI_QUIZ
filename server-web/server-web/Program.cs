@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server_web.Data;
 using server_web.Model;
-using server_web.Services;
+using server_web.Services.Email;
+using server_web.Services.Quiz;
+using server_web.Services.Settings;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

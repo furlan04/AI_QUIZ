@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
-using server_web.Model;
-using server_web.Services;
+using server_web.Services.Quiz;
+using server_web.Services.Settings;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -60,9 +60,9 @@ Rispondi SOLO in JSON con la seguente struttura:
                          .GetProperty("content")
                          .GetString();
 
-        Console.WriteLine(content);
+        if(content == null) return null!;
 
-        GeneratedQuiz quiz = JsonSerializer.Deserialize<GeneratedQuiz>(content);
+        GeneratedQuiz quiz = JsonSerializer.Deserialize<GeneratedQuiz>(content)!;
 
         return quiz!;
     }

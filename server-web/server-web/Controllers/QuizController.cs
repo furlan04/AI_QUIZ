@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using server_web.Data;
 using server_web.Model;
 using server_web.Model.Dto;
-using server_web.Services;
-using System.Security.Claims;
+using server_web.Services.Quiz;
 using System.Text.Json;
 
 namespace server_web.Controllers
@@ -44,17 +43,13 @@ namespace server_web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-                return Unauthorized();
+            if (user == null) return Unauthorized();
 
             var quiz = await _context.Quizzes
                 .Include(q => q.Questions)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
-            if (quiz == null)
-                return NotFound();
-
-            Console.WriteLine($"Quiz trovato: {quiz.Id}, Numero domande: {quiz.Questions?.Count ?? 0}");
+            if (quiz == null) return NotFound();
 
             var return_obj = new QuizDto(quiz);
 
@@ -67,8 +62,7 @@ namespace server_web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if(user == null)
-                return Unauthorized();
+            if(user == null) return Unauthorized();
 
             var generated_quiz = await _quizService.GenerateQuizAsync(topic);
 
@@ -105,14 +99,12 @@ namespace server_web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-                return Unauthorized();
+            if (user == null) return Unauthorized();
 
             var quiz = await _context.Quizzes
                 .FirstOrDefaultAsync(q => q.Id == id && q.UserId == user.Id);
 
-            if (quiz == null)
-                return NotFound();
+            if (quiz == null) return NotFound();
 
             _context.Quizzes.Remove(quiz);
             await _context.SaveChangesAsync();

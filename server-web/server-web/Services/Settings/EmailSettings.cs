@@ -1,4 +1,4 @@
-﻿namespace server_web.Services
+﻿namespace server_web.Services.Settings
 {
     public class EmailSettings
     {
