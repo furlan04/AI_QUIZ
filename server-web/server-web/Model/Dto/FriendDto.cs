@@ -2,10 +2,12 @@
 {
     public class FriendDto
     {
-        public string FriendId { get; set; }
-        public FriendDto(string friendId)
+        public Guid FriendshipId { get; set; }
+        public string FriendEmail { get; set; }
+        public FriendDto(Guid friendshipId, string friendEmail)
         {
-            FriendId = friendId;
+            FriendshipId = friendshipId;
+            FriendEmail= friendEmail;
         }
     }
 }

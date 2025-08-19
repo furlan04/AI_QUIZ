@@ -88,7 +88,7 @@ namespace server_web.Controllers
 
             var friendships = await _context.Friendships
                 .Where(f => f.Accepted && (f.SenderId == current_user.Id || f.ReceiverId == current_user.Id))
-                .Select(f => new FriendDto(f.SenderId == current_user.Id ? f.ReceiverId : f.SenderId))
+                .Select(f => new FriendDto(f.Id, f.SenderId == current_user.Id ? f.ReceivingUser.Email! : f.SendingUser.Email!))
                 .ToListAsync();
 
             return Ok(friendships);
