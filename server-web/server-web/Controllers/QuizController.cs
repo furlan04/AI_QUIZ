@@ -28,8 +28,16 @@ namespace server_web.Controllers
         // GET: api/Quiz
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes(string userId)
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes(string? userId = null)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized("User not authenticated");
+                userId = user.Id;
+            }
+
             var quizzes = await _context.Quizzes
                 .Where(q => q.UserId == userId)
                 .ToListAsync();
