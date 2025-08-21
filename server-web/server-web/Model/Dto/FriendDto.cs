@@ -4,10 +4,6 @@
     {
         public Guid FriendshipId { get; set; }
         public string FriendEmail { get; set; }
-        public FriendDto(Guid friendshipId, string friendEmail)
-        {
-            FriendshipId = friendshipId;
-            FriendEmail= friendEmail;
-        }
+        public string FriendId {  get; set; }
     }
 }

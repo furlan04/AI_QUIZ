@@ -12,8 +12,8 @@ using server_web.Data;
 namespace server_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250819071440_added-friendship-id")]
-    partial class addedfriendshipid
+    [Migration("20250821072026_modeified-model")]
+    partial class modeifiedmodel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -337,18 +337,15 @@ namespace server_web.Migrations
                     b.Property<int?>("Score")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuizId", "IsCompleted");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("UserId", "StartedAt");
+                    b.HasIndex("QuizId", "IsCompleted");
 
                     b.ToTable("QuizAttempts");
                 });
@@ -358,9 +355,6 @@ namespace server_web.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("AnsweredAt")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("QuestionOrder")
                         .HasColumnType("int");

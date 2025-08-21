@@ -76,23 +76,25 @@ namespace server_web.Controllers
             _context.SaveChanges();
             return Ok(request);
         }
+
         [HttpGet("friend-list")]
         public async Task<ActionResult<List<FriendDto>>> FriendList()
         {
             var current_user = await _userManager.GetUserAsync(User);
 
-            if (current_user == null)
-            {
-                return BadRequest("not logged in");
-            }
+            if (current_user == null) return BadRequest("not logged in");
 
             var friendships = await _context.Friendships
                 .Where(f => f.Accepted && (f.SenderId == current_user.Id || f.ReceiverId == current_user.Id))
-                .Select(f => new FriendDto(f.Id, f.SenderId == current_user.Id ? f.ReceivingUser.Email! : f.SendingUser.Email!))
-                .ToListAsync();
+                .Select(f => new FriendDto{
+                    FriendshipId = f.Id,
+                    FriendEmail = f.SenderId == current_user.Id ? f.ReceivingUser.Email! : f.SendingUser.Email!,
+                    FriendId = f.SenderId == current_user.Id ? f.ReceiverId : f.SenderId
+                }).ToListAsync();
 
             return Ok(friendships);
         }
+
         [HttpDelete("remove-friendship/{friendshipId}")]
         public async Task<ActionResult> RemoveFrienship(Guid friendshipId)
         {

@@ -60,8 +60,6 @@ namespace server_web.Data
             builder.Entity<QuizAttempt>(entity =>
             {
                 entity.HasKey(qa => qa.Id);
-                // StartedAt viene settato automaticamente dal codice C#
-                entity.Property(qa => qa.StartedAt).IsRequired();
                 entity.Property(qa => qa.Percentage).HasPrecision(5, 2);
 
                 // Relazione con Quiz
@@ -76,8 +74,6 @@ namespace server_web.Data
                       .HasForeignKey(qa => qa.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // Indici per performance
-                entity.HasIndex(qa => new { qa.UserId, qa.StartedAt });
                 entity.HasIndex(qa => new { qa.QuizId, qa.IsCompleted });
             });
 
@@ -85,8 +81,6 @@ namespace server_web.Data
             builder.Entity<UserAnswer>(entity =>
             {
                 entity.HasKey(ua => ua.Id);
-                // AnsweredAt viene settato automaticamente dal codice C#
-                entity.Property(ua => ua.AnsweredAt).IsRequired();
 
                 // Relazione con QuizAttempt (cascade delete)
                 entity.HasOne(ua => ua.QuizAttempt)

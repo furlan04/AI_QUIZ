@@ -22,12 +22,7 @@ namespace server_web.Model
         [ForeignKey("UserId")]
         [JsonIgnore]
         public ApplicationUser User { get; set; } = null!;
-
-        [Required]
-        public DateTime StartedAt { get; set; } = DateTime.Now;
-
-        public DateTime? CompletedAt { get; set; }
-
+        public DateTime? CompletedAt { get; set; } = DateTime.Now;
         // Punteggio finale (numero di risposte corrette su 10)
         [Range(0, 10)]
         public int? Score { get; set; }

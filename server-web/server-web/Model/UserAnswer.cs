@@ -31,9 +31,6 @@ namespace server_web.Model
         [Range(0, 3)]
         public int SelectedAnswerIndex { get; set; }
 
-        [Required]
-        public DateTime AnsweredAt { get; set; } = DateTime.UtcNow;
-
         // Campo calcolato per verificare se la risposta è corretta
         [NotMapped]
         public bool IsCorrect => Question != null && SelectedAnswerIndex == Question.CorrectAnswerIndex;

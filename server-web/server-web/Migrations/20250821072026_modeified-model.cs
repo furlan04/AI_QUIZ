@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server_web.Migrations
 {
     /// <inheritdoc />
-    public partial class addedfriendshipid : Migration
+    public partial class modeifiedmodel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -290,7 +290,6 @@ namespace server_web.Migrations
                     QuizId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    StartedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CompletedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Score = table.Column<int>(type: "int", nullable: true),
                     Percentage = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
@@ -322,8 +321,7 @@ namespace server_web.Migrations
                     QuizAttemptId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     QuestionQuizId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     QuestionOrder = table.Column<int>(type: "int", nullable: false),
-                    SelectedAnswerIndex = table.Column<int>(type: "int", nullable: false),
-                    AnsweredAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    SelectedAnswerIndex = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -403,9 +401,9 @@ namespace server_web.Migrations
                 columns: new[] { "QuizId", "IsCompleted" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuizAttempts_UserId_StartedAt",
+                name: "IX_QuizAttempts_UserId",
                 table: "QuizAttempts",
-                columns: new[] { "UserId", "StartedAt" });
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Quizzes_ApplicationUserId",

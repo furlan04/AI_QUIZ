@@ -334,18 +334,15 @@ namespace server_web.Migrations
                     b.Property<int?>("Score")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuizId", "IsCompleted");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("UserId", "StartedAt");
+                    b.HasIndex("QuizId", "IsCompleted");
 
                     b.ToTable("QuizAttempts");
                 });
@@ -355,9 +352,6 @@ namespace server_web.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("AnsweredAt")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("QuestionOrder")
                         .HasColumnType("int");
