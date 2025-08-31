@@ -31,7 +31,6 @@ export default function LoginForm({ setIsLoggedIn }) {
         // Aggiornamento stato login nel componente padre
         if (setIsLoggedIn) {
           setIsLoggedIn(true);
-          window.location.reload(true);
         }
 
         // Reindirizza alla lista quiz

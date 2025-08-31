@@ -8,6 +8,11 @@ import QuizList from "./components/MyQuizList";
 import QuizCreateForm from "./components/QuizCreateForm";
 import QuizPlay from "./components/QuizPlay";
 import Home from "./components/HomePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import FriendshipRequests from "./components/FriendshipRequests";
+import FriendsList from "./components/FriendsList";
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt"));
 
@@ -17,16 +22,85 @@ export default function App() {
   };
 
   return (      
-  <Router>
-        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<RegisterForm />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/quizzes" element={<QuizList />} />
-          <Route path="/quizzes/create" element={<QuizCreateForm />} />
-          <Route path="/quiz/:id" element={<QuizPlay />} />
-        </Routes>
-      </Router>  
-      );
+    <Router>
+      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+      <Routes>
+        {/* Rotta home - reindirizza ai quiz se loggato */}
+        <Route 
+          path="/" 
+          element={
+            isLoggedIn ? (
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <QuizList />
+              </ProtectedRoute>
+            ) : (
+              <Home />
+            )
+          } 
+        />
+        
+        {/* Rotte pubbliche - accessibili solo se NON loggati */}
+        <Route 
+          path="/register" 
+          element={
+            <PublicRoute isLoggedIn={isLoggedIn}>
+              <RegisterForm />
+            </PublicRoute>
+          } 
+        />
+        <Route 
+          path="/login" 
+          element={
+            <PublicRoute isLoggedIn={isLoggedIn}>
+              <LoginForm setIsLoggedIn={setIsLoggedIn} />
+            </PublicRoute>
+          } 
+        />
+        
+        {/* Rotte protette - accessibili solo se loggati */}
+        <Route 
+          path="/quizzes" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizList />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/quizzes/create" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizCreateForm />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/quiz/:id" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizPlay />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Rotte per la gestione delle amicizie */}
+        <Route 
+          path="/friendship/requests" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <FriendshipRequests />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/friendship/friends" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <FriendsList />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </Router>  
+  );
 }
