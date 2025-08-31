@@ -23,12 +23,16 @@ namespace server_web.Controllers
             _userManager = userManager;
         }
         [HttpGet("requests/")]
-        public async Task<ActionResult<IEnumerable<Friendship>>> MyRequests()
+        public async Task<ActionResult<IEnumerable<FriendRequestDto>>> MyRequests()
         {
             var current_user = await _userManager.GetUserAsync(User);
             if (current_user == null) return BadRequest("not logged in");
 
-            var received = await _context.Friendships.Where(f => f.ReceiverId == current_user.Id && !f.Accepted).ToListAsync();
+            var received = await _context.Friendships
+                .Where(f => f.ReceiverId == current_user.Id && !f.Accepted)
+                .Select(f => new FriendRequestDto(f.Id, f.SendingUser.Email!))
+                .ToListAsync();
+
             return Ok(received);
         }
         [HttpPost("send-request/{email}")]

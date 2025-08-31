@@ -76,7 +76,7 @@ export default function FriendshipRequests() {
     setLoading(true);
     try {
       const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + `/api/Friendship/accept-request/${friendshipId}`, {
+      const response = await fetch(process.env.REACT_APP_ENDPOINT + `/Friendship/accept-request/${friendshipId}`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -183,17 +183,13 @@ export default function FriendshipRequests() {
           ) : (
             <div className="row">
               {requests.map((request) => (
-                <div key={request.id || request.friendshipId} className="col-md-6 col-lg-4 mb-3">
+                <div key={request.id} className="col-md-6 col-lg-4 mb-3">
                   <div className="card border-info">
                     <div className="card-body">
-                      <h6 className="card-title">{request.senderName || request.name}</h6>
-                      <p className="card-text text-muted">{request.senderEmail || request.email}</p>
-                      <small className="text-muted">
-                        {request.requestDate ? new Date(request.requestDate).toLocaleDateString() : 'Data non disponibile'}
-                      </small>
+                      <h6 className="card-title">{request.email}</h6>
                       <div className="mt-2">
                         <button
-                          onClick={() => acceptRequest(request.Id)}
+                          onClick={() => acceptRequest(request.id)}
                           className="btn btn-success btn-sm"
                           disabled={loading}
                         >
