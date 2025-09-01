@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import RegisterForm from "./components/RegisterForm";
 import LoginForm from "./components/LoginForm";
-import QuizList from "./components/MyQuizList";
+import QuizList from "./components/QuizList";
 import QuizCreateForm from "./components/QuizCreateForm";
 import QuizPlay from "./components/QuizPlay";
 import Home from "./components/HomePage";
@@ -57,9 +57,18 @@ export default function App() {
           } 
         />
         
-        {/* Rotte protette - accessibili solo se loggati */}
+        {/* Rotte per i quiz */}
         <Route 
           path="/quizzes" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizList />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Rotta per i quiz di un utente specifico */}
+        <Route 
+          path="/quizzes/:userId" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
               <QuizList />

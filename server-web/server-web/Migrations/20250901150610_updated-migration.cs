@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server_web.Migrations
 {
     /// <inheritdoc />
-    public partial class modeifiedmodel : Migration
+    public partial class updatedmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -292,8 +292,7 @@ namespace server_web.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CompletedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Score = table.Column<int>(type: "int", nullable: true),
-                    Percentage = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
-                    IsCompleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    Percentage = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -396,9 +395,9 @@ namespace server_web.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuizAttempts_QuizId_IsCompleted",
+                name: "IX_QuizAttempts_QuizId",
                 table: "QuizAttempts",
-                columns: new[] { "QuizId", "IsCompleted" });
+                column: "QuizId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuizAttempts_UserId",

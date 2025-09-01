@@ -321,9 +321,6 @@ namespace server_web.Migrations
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<decimal?>("Percentage")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
@@ -340,9 +337,9 @@ namespace server_web.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("QuizId");
 
-                    b.HasIndex("QuizId", "IsCompleted");
+                    b.HasIndex("UserId");
 
                     b.ToTable("QuizAttempts");
                 });

@@ -6,10 +6,11 @@ export default function QuizPlay() {
   const { id } = useParams();
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
+  const [result, setResult] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [fade, setFade] = useState(true); // stato per animazione
+  const [fade, setFade] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!id || id === "undefined") return;
@@ -47,21 +48,85 @@ export default function QuizPlay() {
     setAnswers({ ...answers, [currentIndex]: index });
   };
 
-  const handleNext = () => {
-    setFade(false); // avvia fade out
-    setTimeout(() => {
-      if (currentIndex + 1 < quiz.questions.length) {
-        setCurrentIndex(currentIndex + 1);
+  const submitQuiz = async () => {
+    setIsSubmitting(true);
+    
+    // Prepara i dati per la chiamata API
+    const submitData = {
+      quizId: id,
+      answers: quiz.questions.map((q, index) => ({
+        questionQuizId: q.quizId,
+        questionOrder: q.order,
+        selectedAnswerIndex: answers[index] || 0
+      }))
+    };
+
+    try {
+      const token = localStorage.getItem("jwt");
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/QuizAttempt/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(submitData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setResult(result);
+        setShowResult(true);
       } else {
+        console.error('Errore invio quiz:', response.statusText);
+        // Fallback al calcolo locale in caso di errore
         const correct = quiz.questions.reduce(
           (acc, q, idx) => (answers[idx] === q.correctAnswerIndex ? acc + 1 : acc),
           0
         );
-        setScore(`${correct} su ${quiz.questions.length}`);
+        setResult({
+          score: correct,
+          percentage: Math.round((correct / quiz.questions.length) * 100),
+          totalQuestions: quiz.questions.length
+        });
         setShowResult(true);
       }
-      setFade(true); // fade in nuova domanda
+    } catch (error) {
+      console.error('Errore durante invio quiz:', error);
+      // Fallback al calcolo locale
+      const correct = quiz.questions.reduce(
+        (acc, q, idx) => (answers[idx] === q.correctAnswerIndex ? acc + 1 : acc),
+        0
+      );
+      setResult({
+        score: correct,
+        percentage: Math.round((correct / quiz.questions.length) * 100),
+        totalQuestions: quiz.questions.length
+      });
+      setShowResult(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = () => {
+    setFade(false); // avvia fade out
+    setTimeout(async () => {
+      if (currentIndex + 1 < quiz.questions.length) {
+        setCurrentIndex(currentIndex + 1);
+        setFade(true); // fade in nuova domanda
+      } else {
+        // Ultima domanda - invia il quiz
+        await submitQuiz();
+        setFade(true); // fade in risultato
+      }
     }, 300); // durata della transizione
+  };
+
+  const resetQuiz = () => {
+    setCurrentIndex(0);
+    setAnswers({});
+    setResult(null);
+    setShowResult(false);
   };
 
   const isSelected = (i) => answers[currentIndex] === i;
@@ -82,6 +147,7 @@ export default function QuizPlay() {
                     isSelected(i) ? "border border-3 border-primary bg-light" : ""
                   }`}
                   onClick={() => handleOptionClick(i)}
+                  disabled={isSubmitting}
                 >
                   {opt}
                   {isSelected(i) && (
@@ -95,24 +161,29 @@ export default function QuizPlay() {
               <button
                 className="btn btn-primary"
                 onClick={handleNext}
-                disabled={answers[currentIndex] === undefined}
+                disabled={answers[currentIndex] === undefined || isSubmitting}
               >
-                {currentIndex + 1 < quiz.questions.length ? "Prossima domanda" : "Vedi risultato"}
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Invio...
+                  </>
+                ) : (
+                  currentIndex + 1 < quiz.questions.length ? "Prossima domanda" : "Vedi risultato"
+                )}
               </button>
             </div>
           </>
         ) : (
           <div className="text-center">
             <h3>Quiz completato!</h3>
-            <p className="lead">Punteggio: {score}</p>
+            <div className="my-4">
+              <h4 className="text-primary">Punteggio: {result.score}/{result.totalQuestions}</h4>
+              <p className="lead">Percentuale: {result.percentage}%</p>
+            </div>
             <button
               className="btn btn-success"
-              onClick={() => {
-                setCurrentIndex(0);
-                setAnswers({});
-                setScore(null);
-                setShowResult(false);
-              }}
+              onClick={resetQuiz}
             >
               Riprova
             </button>

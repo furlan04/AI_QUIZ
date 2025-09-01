@@ -12,8 +12,8 @@ using server_web.Data;
 namespace server_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250821072026_modeified-model")]
-    partial class modeifiedmodel
+    [Migration("20250901150610_updated-migration")]
+    partial class updatedmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -324,9 +324,6 @@ namespace server_web.Migrations
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<decimal?>("Percentage")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
@@ -343,9 +340,9 @@ namespace server_web.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("QuizId");
 
-                    b.HasIndex("QuizId", "IsCompleted");
+                    b.HasIndex("UserId");
 
                     b.ToTable("QuizAttempts");
                 });

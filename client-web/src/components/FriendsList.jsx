@@ -1,11 +1,14 @@
 // src/components/FriendsList.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function FriendsList() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const navigate = useNavigate();
 
   // Recupera la lista degli amici
   const fetchFriends = async () => {
@@ -142,17 +145,9 @@ export default function FriendsList() {
                 <div className="card h-100">
                   <div className="card-body d-flex flex-column">
                     <div className="mb-2">
-                      <h6 className="card-title mb-1">
-                        {friend.friendName || friend.name}
-                      </h6>
                       <p className="card-text text-muted mb-1">
-                        {friend.friendEmail || friend.email}
+                        {friend.friendEmail}
                       </p>
-                      {friend.friendsSince && (
-                        <small className="text-muted">
-                          Amici dal: {new Date(friend.friendsSince).toLocaleDateString()}
-                        </small>
-                      )}
                     </div>
                     
                     <div className="mt-auto">
@@ -164,11 +159,10 @@ export default function FriendsList() {
                         >
                           Rimuovi Amicizia
                         </button>
-                        {/* Opzionale: Pulsante per vedere i quiz dell'amico */}
                         <button 
+                          onClick={() => navigate(`/quizzes/${friend.friendId}`)}
                           className="btn btn-outline-primary btn-sm"
-                          disabled
-                          title="Funzionalità non ancora implementata"
+                          disabled={loading}
                         >
                           Vedi Quiz
                         </button>

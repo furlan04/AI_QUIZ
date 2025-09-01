@@ -20,3 +20,12 @@ export const getMyQuizzes = async (token) => {
   });
   return await response.json();
 };
+
+export const getQuizzes = async (token, userId) => {
+  const response = await fetch(`${API_URL}/Quiz?userId=${userId}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+  return await response.json();
+};

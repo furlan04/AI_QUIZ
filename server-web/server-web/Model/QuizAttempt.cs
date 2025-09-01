@@ -30,10 +30,6 @@ namespace server_web.Model
         // Percentuale di successo
         [Range(0, 100)]
         public decimal? Percentage { get; set; }
-
-        // Indica se il tentativo è stato completato
-        public bool IsCompleted { get; set; } = false;
-
         // Navigazione verso le risposte dell'utente
         [JsonIgnore]
         public ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();

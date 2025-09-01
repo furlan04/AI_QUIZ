@@ -74,7 +74,7 @@ namespace server_web.Data
                       .HasForeignKey(qa => qa.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(qa => new { qa.QuizId, qa.IsCompleted });
+                entity.HasIndex(qa => new { qa.QuizId });
             });
 
             // Configurazione UserAnswer
