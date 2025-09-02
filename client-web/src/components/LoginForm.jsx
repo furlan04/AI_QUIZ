@@ -45,55 +45,74 @@ export default function LoginForm({ setIsLoggedIn }) {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-      <form
-        onSubmit={handleLogin}
-        className="p-4 rounded shadow-lg bg-white"
-        style={{ width: "100%", maxWidth: "400px" }}
-      >
-        <h2 className="text-center mb-4">Login</h2>
-
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Inserisci la tua email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Inserisci la password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn btn-success w-100">
-          Accedi
-        </button>
-
-        {token && (
-          <div className="alert alert-success mt-3">
-            Login effettuato! <br />
-            <strong>JWT:</strong> {token}
+    <div className="d-flex justify-content-center align-items-center min-vh-100 bg-gradient-primary">
+      <div className="container" style={{maxWidth: '460px'}}>
+        <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
+          <div className="card-header bg-white border-0 py-4">
+            <div className="text-center">
+              <div className="display-6 mb-2">🔑</div>
+              <h2 className="fw-bold mb-1">Accedi</h2>
+              <p className="text-muted mb-0">Bentornato su AI Quiz Network</p>
+            </div>
           </div>
-        )}
+          <div className="card-body p-4">
+            <form onSubmit={handleLogin}>
+              <div className="mb-3">
+                <label className="form-label">Email</label>
+                <div className="input-group">
+                  <span className="input-group-text">@</span>
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="es. nome@dominio.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
 
-        {error && (
-          <div className="alert alert-danger mt-3" role="alert">
-            {error}
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <div className="input-group">
+                  <span className="input-group-text">🔒</span>
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Inserisci la password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="btn btn-primary w-100">
+                Accedi
+              </button>
+
+              <div className="text-center mt-3">
+                <small className="text-muted">Non hai un account?</small>
+                <button type="button" className="btn btn-link p-1" onClick={() => navigate('/register')}>
+                  Registrati
+                </button>
+              </div>
+
+              {token && (
+                <div className="alert alert-success mt-3">
+                  Login effettuato!
+                </div>
+              )}
+
+              {error && (
+                <div className="alert alert-danger mt-3" role="alert">
+                  {error}
+                </div>
+              )}
+            </form>
           </div>
-        )}
-      </form>
+        </div>
+      </div>
     </div>
   );
 }

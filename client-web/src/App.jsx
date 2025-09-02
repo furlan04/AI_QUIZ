@@ -12,6 +12,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import FriendshipRequests from "./components/FriendshipRequests";
 import FriendsList from "./components/FriendsList";
+import Leaderboard from "./components/Leaderboard";
+import QuizAttempts from "./components/QuizAttempts";
+import QuizReview from "./components/QuizReview";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt"));
@@ -92,6 +95,36 @@ export default function App() {
           } 
         />
         
+        {/* Rotta per la classifica del quiz */}
+        <Route 
+          path="/leaderboard/:quizId" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <Leaderboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Rotta per i tentativi del quiz */}
+        <Route 
+          path="/attempts/:quizId" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizAttempts />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Rotta per la revisione di un tentativo */}
+        <Route 
+          path="/review/:attemptId" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <QuizReview />
+            </ProtectedRoute>
+          } 
+        />
+
         {/* Rotte per la gestione delle amicizie */}
         <Route 
           path="/friendship/requests" 

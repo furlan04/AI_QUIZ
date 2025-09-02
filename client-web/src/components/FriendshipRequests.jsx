@@ -119,91 +119,107 @@ export default function FriendshipRequests() {
   }, [message]);
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Gestione Amicizie</h2>
-
-      {/* Sezione per inviare richieste */}
-      <div className="card mb-4">
-        <div className="card-header">
-          <h4>Invia Richiesta di Amicizia</h4>
-        </div>
-        <div className="card-body">
-          <form onSubmit={sendRequest}>
-            <div className="mb-3">
-              <label className="form-label">Email dell'utente</label>
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Inserisci l'email dell'utente"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
+    <div className="container my-5">
+      <div className="row g-4">
+        <div className="col-lg-5">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-0 py-3">
+              <h4 className="mb-0 fw-bold text-dark">➕ Invia Richiesta</h4>
             </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? "Invio..." : "Invia Richiesta"}
-            </button>
-          </form>
+            <div className="card-body">
+              <form onSubmit={sendRequest}>
+                <div className="mb-3">
+                  <label className="form-label">Email dell'utente</label>
+                  <div className="input-group">
+                    <span className="input-group-text">@</span>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="es. nome@dominio.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-text">Inserisci l'email della persona a cui vuoi inviare la richiesta.</div>
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary w-100"
+                  disabled={loading}
+                >
+                  {loading ? "Invio..." : "Invia Richiesta"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-7">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+              <h4 className="mb-0 fw-bold text-dark">📥 Richieste in Arrivo</h4>
+              <button 
+                onClick={fetchRequests}
+                className="btn btn-outline-secondary btn-sm"
+                disabled={loading}
+              >
+                {loading ? "Caricamento..." : "↻ Aggiorna"}
+              </button>
+            </div>
+            <div className="card-body">
+              {loading && requests.length === 0 ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
+                    <span className="visually-hidden">Caricamento...</span>
+                  </div>
+                </div>
+              ) : requests.length === 0 ? (
+                <p className="text-muted text-center">Nessuna richiesta di amicizia in arrivo</p>
+              ) : (
+                <div className="row g-3">
+                  {requests.map((request) => (
+                    <div key={request.id} className="col-12">
+                      <div className="card border-0 border-start border-4 border-info">
+                        <div className="card-body d-flex align-items-center justify-content-between p-3">
+                          <div className="d-flex align-items-center">
+                            <div className="avatar-circle bg-info bg-opacity-10 text-info me-3">
+                              {(request.email || '?').slice(0,2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="fw-bold text-dark">{request.email}</div>
+                              {request.sentAt && (
+                                <small className="text-muted">Inviata il {new Date(request.sentAt).toLocaleDateString('it-IT')}</small>
+                              )}
+                            </div>
+                          </div>
+                          <div className="d-flex gap-2">
+                            <button
+                              onClick={() => acceptRequest(request.id)}
+                              className="btn btn-success btn-sm"
+                              disabled={loading}
+                            >
+                              ✔️ Accetta
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Messaggi di feedback */}
       {message && (
-        <div className={`alert ${messageType === 'success' ? 'alert-success' : 'alert-danger'}`}>
+        <div className={`alert mt-4 ${messageType === 'success' ? 'alert-success' : 'alert-danger'}`}>
           {message}
         </div>
       )}
-
-      {/* Sezione richieste in arrivo */}
-      <div className="card">
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <h4>Richieste di Amicizia in Arrivo</h4>
-          <button 
-            onClick={fetchRequests}
-            className="btn btn-outline-secondary btn-sm"
-            disabled={loading}
-          >
-            {loading ? "Caricamento..." : "Aggiorna"}
-          </button>
-        </div>
-        <div className="card-body">
-          {loading && requests.length === 0 ? (
-            <div className="text-center">
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">Caricamento...</span>
-              </div>
-            </div>
-          ) : requests.length === 0 ? (
-            <p className="text-muted text-center">Nessuna richiesta di amicizia in arrivo</p>
-          ) : (
-            <div className="row">
-              {requests.map((request) => (
-                <div key={request.id} className="col-md-6 col-lg-4 mb-3">
-                  <div className="card border-info">
-                    <div className="card-body">
-                      <h6 className="card-title">{request.email}</h6>
-                      <div className="mt-2">
-                        <button
-                          onClick={() => acceptRequest(request.id)}
-                          className="btn btn-success btn-sm"
-                          disabled={loading}
-                        >
-                          Accetta
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

@@ -74,6 +74,15 @@ export default function FriendsList() {
     }
   };
 
+  // Helpers
+  const getInitials = (email) => {
+    if (!email) return "?";
+    const name = email.split('@')[0];
+    const parts = name.replace(/[^a-zA-Z0-9]/g, ' ').trim().split(' ');
+    const initials = (parts[0]?.[0] || '').toUpperCase() + (parts[1]?.[0] || '').toUpperCase();
+    return initials || name.slice(0,2).toUpperCase();
+  };
+
   // Carica gli amici al montaggio del componente
   useEffect(() => {
     fetchFriends();
@@ -91,16 +100,21 @@ export default function FriendsList() {
   }, [message]);
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>I Miei Amici</h2>
-        <button 
-          onClick={fetchFriends}
-          className="btn btn-outline-primary"
-          disabled={loading}
-        >
-          {loading ? "Caricamento..." : "Aggiorna Lista"}
-        </button>
+    <div className="container my-5">
+      <div className="row align-items-center mb-4">
+        <div className="col">
+          <h2 className="fw-bold text-primary mb-0">I Miei Amici</h2>
+          <small className="text-muted">Gestisci le tue connessioni e scopri i quiz dei tuoi amici</small>
+        </div>
+        <div className="col-auto">
+          <button 
+            onClick={fetchFriends}
+            className="btn btn-outline-primary"
+            disabled={loading}
+          >
+            {loading ? "Caricamento..." : "↻ Aggiorna"}
+          </button>
+        </div>
       </div>
 
       {/* Messaggi di feedback */}
@@ -112,22 +126,23 @@ export default function FriendsList() {
 
       {/* Lista degli amici */}
       {loading && friends.length === 0 ? (
-        <div className="text-center">
-          <div className="spinner-border" role="status">
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
             <span className="visually-hidden">Caricamento...</span>
           </div>
         </div>
       ) : friends.length === 0 ? (
         <div className="text-center">
-          <div className="card">
-            <div className="card-body">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body py-5">
+              <div className="display-6 mb-3">👋</div>
               <h5 className="card-title text-muted">Nessun amico ancora</h5>
-              <p className="card-text">
-                Non hai ancora nessun amico nella tua lista. 
+              <p className="card-text mb-4">
+                Non hai ancora nessun amico nella tua lista.
                 Inizia inviando qualche richiesta di amicizia!
               </p>
               <a href="/friendship/requests" className="btn btn-primary">
-                Gestisci Richieste
+                ➕ Gestisci Richieste
               </a>
             </div>
           </div>
@@ -139,34 +154,38 @@ export default function FriendsList() {
               {friends.length} {friends.length === 1 ? 'amico' : 'amici'} trovati
             </small>
           </div>
-          <div className="row">
+          <div className="row g-4">
             {friends.map((friend) => (
-              <div key={friend.friendshipId || friend.id} className="col-md-6 col-lg-4 mb-3">
-                <div className="card h-100">
-                  <div className="card-body d-flex flex-column">
-                    <div className="mb-2">
-                      <p className="card-text text-muted mb-1">
-                        {friend.friendEmail}
-                      </p>
+              <div key={friend.friendshipId || friend.id} className="col-md-6 col-lg-4">
+                <div className="card h-100 border-0 shadow-sm">
+                  <div className="card-body d-flex flex-column p-4">
+                    <div className="d-flex align-items-center mb-3">
+                      <div className="avatar-circle bg-primary bg-opacity-10 text-primary me-3">
+                        {getInitials(friend.friendEmail)}
+                      </div>
+                      <div>
+                        <div className="fw-bold text-dark">{friend.friendEmail}</div>
+                        {friend.since && (
+                          <small className="text-muted">Amici dal {new Date(friend.since).toLocaleDateString('it-IT')}</small>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="mt-auto">
-                      <div className="d-flex gap-2">
-                        <button
-                          onClick={() => removeFriend(friend.friendshipId || friend.id)}
-                          className="btn btn-outline-danger btn-sm"
-                          disabled={loading}
-                        >
-                          Rimuovi Amicizia
-                        </button>
-                        <button 
-                          onClick={() => navigate(`/quizzes/${friend.friendId}`)}
-                          className="btn btn-outline-primary btn-sm"
-                          disabled={loading}
-                        >
-                          Vedi Quiz
-                        </button>
-                      </div>
+                    <div className="mt-auto d-flex gap-2">
+                      <button
+                        onClick={() => navigate(`/quizzes/${friend.friendId}`)}
+                        className="btn btn-outline-primary btn-sm flex-grow-1"
+                        disabled={loading}
+                      >
+                        📚 Vedi Quiz
+                      </button>
+                      <button
+                        onClick={() => removeFriend(friend.friendshipId || friend.id)}
+                        className="btn btn-outline-danger btn-sm"
+                        disabled={loading}
+                      >
+                        🗑️ Rimuovi
+                      </button>
                     </div>
                   </div>
                 </div>

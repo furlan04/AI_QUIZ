@@ -12,7 +12,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Legge la stringa di connessione
-var connectionString = builder.Configuration.GetConnectionString("Development");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Configura EF Core con Pomelo per MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

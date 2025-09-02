@@ -45,7 +45,7 @@ export default function QuizList() {
     return (
       <div className="container mt-5">
         <div className="d-flex justify-content-center">
-          <div className="spinner-border" role="status">
+          <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
             <span className="visually-hidden">Caricamento...</span>
           </div>
         </div>
@@ -56,12 +56,25 @@ export default function QuizList() {
   if (quizzes.length === 0) {
     return (
       <div className="container mt-5">
-        <h2>{pageTitle}</h2>
-        <div className="alert alert-info mt-3">
-          {isMyQuizzes 
-            ? "Non hai ancora quiz creati." 
-            : "Questo utente non ha ancora quiz creati."
-          }
+        <div className="text-center py-5">
+          <div className="mb-4">
+            <span className="display-1 text-muted">📚</span>
+          </div>
+          <h2 className="text-muted mb-3">{pageTitle}</h2>
+          <div className="alert alert-info d-inline-block">
+            {isMyQuizzes 
+              ? "Non hai ancora creato nessun quiz. Inizia ora!" 
+              : "Questo utente non ha ancora creato nessun quiz."
+            }
+          </div>
+          {isMyQuizzes && (
+            <div className="mt-3">
+              <Link to="/quizzes/create" className="btn btn-primary btn-lg">
+                <span className="me-2">✨</span>
+                Crea il tuo primo Quiz
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -69,46 +82,75 @@ export default function QuizList() {
 
   return (
     <div className="container my-5">
-      <h2 className="mb-4">{pageTitle}</h2>
-      <div className="row">
+      {/* Header Section */}
+      <div className="row align-items-center mb-5">
+        <div className="col-lg-8">
+          <h1 className="display-5 fw-bold text-primary mb-2">{pageTitle}</h1>
+          <p className="lead text-muted mb-0">
+            {isMyQuizzes 
+              ? "Gestisci e monitora i tuoi quiz creati" 
+              : "Esplora i quiz creati da questo utente"
+            }
+          </p>
+        </div>
+        {isMyQuizzes && (
+          <div className="col-lg-4 text-lg-end">
+            <Link to="/quizzes/create" className="btn btn-primary btn-lg">
+              <span className="me-2">✨</span>
+              Crea Nuovo Quiz
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Quiz Grid */}
+      <div className="row g-4">
         {quizzes.map((quiz) => (
-          <div key={quiz.id} className="col-md-6 col-lg-4 mb-4">
-            <div
-              className="card h-100 shadow-sm"
-              style={{ transition: "transform 0.2s, box-shadow 0.2s" }}
-            >
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{quiz.title}</h5>
-                <p className="card-text text-muted flex-grow-1">{quiz.description}</p>
+          <div key={quiz.id} className="col-md-6 col-lg-4">
+            <div className="card h-100 border-0 shadow-sm quiz-card">
+              <div className="card-body d-flex flex-column p-4">
+                {/* Quiz Status Badge */}
                 {quiz.isActive !== undefined && (
-                  <span
-                    className={`badge mb-2 ${
-                      quiz.isActive ? "bg-success" : "bg-secondary"
-                    }`}
-                  >
-                    {quiz.isActive ? "Attivo" : "Inattivo"}
-                  </span>
+                  <div className="mb-3">
+                    <span
+                      className={`badge rounded-pill px-3 py-2 ${
+                        quiz.isActive ? "bg-success bg-opacity-10 text-success" : "bg-secondary bg-opacity-10 text-secondary"
+                      }`}
+                    >
+                      <span className="me-1">
+                        {quiz.isActive ? "🟢" : "⚫"}
+                      </span>
+                      {quiz.isActive ? "Attivo" : "Inattivo"}
+                    </span>
+                  </div>
                 )}
-                <div className="mt-auto d-flex justify-content-between">
-                  <Link to={`/quiz/${quiz.id}`} className="btn btn-primary btn-sm">
-                    Gioca
+
+                {/* Quiz Content */}
+                <h5 className="card-title fw-bold mb-3 text-dark">{quiz.title}</h5>
+                <p className="card-text text-muted flex-grow-1 mb-4">
+                  {quiz.description || "Nessuna descrizione disponibile"}
+                </p>
+
+                {/* Action Buttons */}
+                <div className="mt-auto d-grid gap-2">
+                  <Link to={`/quiz/${quiz.id}`} className="btn btn-primary">
+                    <span className="me-2">🎮</span>
+                    Gioca Quiz
                   </Link>
-                  {/* Mostra il pulsante classifica solo per i propri quiz */}
-                  {isMyQuizzes && (
-                    <Link to={`#`} className="btn btn-outline-secondary btn-sm">
-                      Vedi classifica
+                  
+                  {/* Accesso a Classifica e Tentativi per tutti gli utenti */}
+                  <div className="d-grid gap-2">
+                    <Link to={`/leaderboard/${quiz.id}`} className="btn btn-outline-primary">
+                      <span className="me-2">🏆</span>
+                      Vedi Classifica
                     </Link>
-                  )}
+                    <Link to={`/attempts/${quiz.id}`} className="btn btn-outline-info">
+                      <span className="me-2">📊</span>
+                      I miei Tentativi
+                    </Link>
+                  </div>
                 </div>
               </div>
-              <style>
-                {`
-                  .card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-                  }
-                `}
-              </style>
             </div>
           </div>
         ))}

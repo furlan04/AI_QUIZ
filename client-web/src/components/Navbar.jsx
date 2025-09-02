@@ -1,4 +1,4 @@
-// src/components/Navbar.jsx (Versione con Dropdown React)
+// src/components/Navbar.jsx (Versione moderna con icone e design migliorato)
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
@@ -6,60 +6,95 @@ export default function Navbar({ isLoggedIn, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <nav className="navbar navbar-expand-lg navbar-light bg-gradient-primary shadow-lg">
       <div className="container">
-        <Link className="navbar-brand" to="/">Quiz App</Link>
-        <div className="ms-auto d-flex gap-2">
+        {/* Brand/Logo */}
+        <Link className="navbar-brand d-flex align-items-center fw-bold fs-3 text-dark" to="/">
+          <span className="bg-primary bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center me-2" style={{width: '40px', height: '40px'}}>
+            <span className="text-primary fw-bold">Q</span>
+          </span>
+          AI Quiz Network
+        </Link>
+
+        {/* Navigation Links */}
+        <div className="navbar-nav ms-auto d-flex align-items-center gap-3">
           {!isLoggedIn ? (
+            // Non autenticato
             <>
-              <Link to="/register" className="btn btn-outline-primary">Registrati</Link>
-              <Link to="/login" className="btn btn-outline-success">Login</Link>
+              <Link to="/register" className="btn btn-primary btn-sm px-3 d-flex align-items-center gap-2">
+                <span className="fw-bold">📝</span>
+                Registrati
+              </Link>
+              <Link to="/login" className="btn btn-outline-primary btn-sm px-3 d-flex align-items-center gap-2">
+                <span className="fw-bold">🔑</span>
+                Accedi
+              </Link>
             </>
           ) : (
+            // Autenticato
             <>
-              <Link to="/quizzes" className="btn btn-outline-primary">I miei Quiz</Link>
-              <Link to="/quizzes/create" className="btn btn-outline-secondary">Crea Quiz</Link>
+              {/* Quiz Management */}
+              <Link to="/quizzes" className="btn btn-outline-primary btn-sm px-3 d-flex align-items-center gap-2">
+                <span className="fw-bold">📚</span>
+                I Miei Quiz
+              </Link>
               
-              {/* Dropdown per le amicizie con React */}
+              <Link to="/quizzes/create" className="btn btn-outline-primary btn-sm px-3 d-flex align-items-center gap-2">
+                <span className="fw-bold">✨</span>
+                Crea Quiz
+              </Link>
+              
+              {/* Friendships Dropdown */}
               <div className="dropdown position-relative">
                 <button 
-                  className="btn btn-outline-info dropdown-toggle" 
+                  className="btn btn-outline-primary btn-sm px-3 dropdown-toggle d-flex align-items-center gap-2" 
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
                 >
+                  <span className="fw-bold">👥</span>
                   Amicizie
                 </button>
                 <ul 
-                  className={`dropdown-menu position-absolute ${dropdownOpen ? 'show' : ''}`}
+                  className={`dropdown-menu dropdown-menu-end shadow-lg border-0 ${dropdownOpen ? 'show' : ''}`}
                   style={{ 
                     top: '100%', 
-                    left: '0',
-                    zIndex: 1000
+                    right: '0',
+                    zIndex: 1000,
+                    minWidth: '200px'
                   }}
                 >
                   <li>
                     <Link 
-                      className="dropdown-item" 
+                      className="dropdown-item d-flex align-items-center gap-2 py-2" 
                       to="/friendship/requests"
                       onClick={() => setDropdownOpen(false)}
                     >
+                      <span className="fw-bold">📨</span>
                       Gestisci Richieste
                     </Link>
                   </li>
                   <li>
                     <Link 
-                      className="dropdown-item" 
+                      className="dropdown-item d-flex align-items-center gap-2 py-2" 
                       to="/friendship/friends"
                       onClick={() => setDropdownOpen(false)}
                     >
+                      <span className="fw-bold">🤝</span>
                       I Miei Amici
                     </Link>
                   </li>
                 </ul>
               </div>
               
-              <button onClick={onLogout} className="btn btn-danger">Logout</button>
+              {/* Logout Button */}
+              <button 
+                onClick={onLogout} 
+                className="btn btn-danger btn-sm px-3 d-flex align-items-center gap-2"
+              >
+                <span className="fw-bold">🚪</span>
+                Logout
+              </button>
             </>
           )}
         </div>

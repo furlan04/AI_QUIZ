@@ -36,3 +36,120 @@
     transform: rotate(360deg);
   }
 }
+
+/* Custom CSS for modern UI components */
+
+/* Gradient Primary Background */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+}
+
+/* Enhanced shadow effects */
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Custom button hover effects for light theme */
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+/* Dropdown menu enhancements */
+.dropdown-menu {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0;
+  border: 1px solid #dee2e6;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+/* Navbar brand logo enhancement */
+.navbar-brand {
+  transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+  transform: translateY(-1px);
+  color: #0d6efd !important;
+}
+
+/* Button icon spacing */
+.btn .fw-bold {
+  font-size: 1.1em;
+}
+
+/* Ensure text readability */
+.navbar-light .navbar-nav .nav-link {
+  color: #212529 !important;
+}
+
+.navbar-light .navbar-brand {
+  color: #212529 !important;
+}
+
+/* Quiz List Card Enhancements */
+.quiz-card {
+  transition: all 0.3s ease;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.quiz-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.quiz-card .card-body {
+  transition: all 0.3s ease;
+}
+
+.quiz-card:hover .card-body {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Badge enhancements */
+.badge.rounded-pill {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-nav {
+    gap: 0.5rem !important;
+  }
+  
+  .btn-sm {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.875rem;
+  }
+  
+  .quiz-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Avatar circle utility */
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
