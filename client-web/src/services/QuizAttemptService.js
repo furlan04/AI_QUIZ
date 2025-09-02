@@ -1,34 +1,17 @@
-// src/services/QuizService.js
+// src/services/QuizAttemptService.js
 import { handleHttpError, handleNetworkError, createAuthHeaders } from './CommonService';
 import { getConfig } from '../config/config';
 
 const API_URL = getConfig('API_ENDPOINT');
 
-export const createQuiz = async (topic, token) => {
+export const submitQuizAttempt = async (submitData, token) => {
   try {
-    const response = await fetch(`${API_URL}/Quiz/${topic}`, {
-      method: "POST",
+    const response = await fetch(`${API_URL}/QuizAttempt/submit`, {
+      method: 'POST',
       headers: createAuthHeaders(token),
+      body: JSON.stringify(submitData)
     });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-      return { success: true, ...data };
-    } else {
-      return { success: false, message: data.message || "Errore durante la creazione del quiz" };
-    }
-  } catch (error) {
-    return handleNetworkError(error);
-  }
-};
 
-export const getMyQuizzes = async (token) => {
-  try {
-    const response = await fetch(`${API_URL}/Quiz`, {
-      headers: createAuthHeaders(token)
-    });
-    
     handleHttpError(response);
     return await response.json();
   } catch (error) {
@@ -36,12 +19,12 @@ export const getMyQuizzes = async (token) => {
   }
 };
 
-export const getQuizzes = async (token, userId) => {
+export const getLeaderboard = async (quizId, token) => {
   try {
-    const response = await fetch(`${API_URL}/Quiz?userId=${userId}`, {
+    const response = await fetch(`${API_URL}/QuizAttempt/leaderboard/${quizId}`, {
       headers: createAuthHeaders(token)
     });
-    
+
     handleHttpError(response);
     return await response.json();
   } catch (error) {
@@ -49,12 +32,25 @@ export const getQuizzes = async (token, userId) => {
   }
 };
 
-export const getQuizById = async (quizId, token) => {
+export const getMyAttempts = async (quizId, token) => {
   try {
-    const response = await fetch(`${API_URL}/Quiz/${quizId}`, {
+    const response = await fetch(`${API_URL}/QuizAttempt/my-attempts/${quizId}`, {
       headers: createAuthHeaders(token)
     });
-    
+
+    handleHttpError(response);
+    return await response.json();
+  } catch (error) {
+    return handleNetworkError(error);
+  }
+};
+
+export const getAttemptReview = async (attemptId, token) => {
+  try {
+    const response = await fetch(`${API_URL}/QuizAttempt/${attemptId}/review`, {
+      headers: createAuthHeaders(token)
+    });
+
     handleHttpError(response);
     return await response.json();
   } catch (error) {

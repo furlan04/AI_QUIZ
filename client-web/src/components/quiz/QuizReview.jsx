@@ -1,6 +1,8 @@
 // src/components/QuizReview.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { getAttemptReview } from "../../services/QuizAttemptService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function QuizReview() {
   const [reviewData, setReviewData] = useState(null);
@@ -15,23 +17,12 @@ export default function QuizReview() {
       setError(null);
       
       try {
-        const token = localStorage.getItem("jwt");
+        const token = getAuthToken();
         if (!token) {
           throw new Error("Token non trovato");
         }
 
-        const response = await fetch(process.env.REACT_APP_ENDPOINT + `/QuizAttempt/${attemptId}/review`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await getAttemptReview(attemptId, token);
         setReviewData(data);
       } catch (err) {
         console.error("Errore nel caricamento della revisione:", err);

@@ -1,7 +1,7 @@
 // src/components/LoginForm.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { login } from "../../services/AuthService";
 
 export default function LoginForm({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
@@ -15,18 +15,12 @@ export default function LoginForm({ setIsLoggedIn }) {
     e.preventDefault();
     setError(""); // reset error
     try {
-      const res = await fetch(process.env.REACT_APP_ENDPOINT + "/Auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const result = await login(email, password);
 
-      const data = await res.json();
-
-      if (res.ok && data.token) {
+      if (result.success && result.token) {
         // Salvataggio JWT
-        localStorage.setItem("jwt", data.token);
-        setToken(data.token);
+        localStorage.setItem("jwt", result.token);
+        setToken(result.token);
 
         // Aggiornamento stato login nel componente padre
         if (setIsLoggedIn) {
@@ -36,7 +30,7 @@ export default function LoginForm({ setIsLoggedIn }) {
         // Reindirizza alla lista quiz
         navigate("/quizzes");
       } else {
-        setError(data.message || "Errore login");
+        setError(result.message || "Errore login");
       }
     } catch (err) {
       console.error(err);

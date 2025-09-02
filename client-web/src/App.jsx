@@ -1,26 +1,29 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import Navbar from "./components/Navbar";
-import RegisterForm from "./components/RegisterForm";
-import LoginForm from "./components/LoginForm";
-import QuizList from "./components/QuizList";
-import QuizCreateForm from "./components/QuizCreateForm";
-import QuizPlay from "./components/QuizPlay";
-import Home from "./components/HomePage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
-import FriendshipRequests from "./components/FriendshipRequests";
-import FriendsList from "./components/FriendsList";
-import Leaderboard from "./components/Leaderboard";
-import QuizAttempts from "./components/QuizAttempts";
-import QuizReview from "./components/QuizReview";
+import { isAuthenticated, logout } from "./services";
+import {
+  Navbar,
+  RegisterForm,
+  LoginForm,
+  QuizList,
+  QuizCreateForm,
+  QuizPlay,
+  HomePage,
+  ProtectedRoute,
+  PublicRoute,
+  FriendshipRequests,
+  FriendsList,
+  Leaderboard,
+  QuizAttempts,
+  QuizReview
+} from "./components";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt"));
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt");
+    logout();
     setIsLoggedIn(false);
   };
 
@@ -37,7 +40,7 @@ export default function App() {
                 <QuizList />
               </ProtectedRoute>
             ) : (
-              <Home />
+              <HomePage />
             )
           } 
         />

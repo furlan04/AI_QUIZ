@@ -1,6 +1,7 @@
 // src/components/QuizList.jsx
 import { useEffect, useState } from "react";
-import { getMyQuizzes, getQuizzes } from "../services/QuizService";
+import { getMyQuizzes, getQuizzes } from "../../services/QuizService";
+import { getAuthToken } from "../../services/CommonService";
 import { Link, useParams } from "react-router-dom";
 
 export default function QuizList() {
@@ -11,7 +12,7 @@ export default function QuizList() {
   useEffect(() => {
     const fetchQuizzes = async () => {
       setLoading(true);
-      const token = localStorage.getItem("jwt");
+      const token = getAuthToken();
       
       if (token) {
         try {

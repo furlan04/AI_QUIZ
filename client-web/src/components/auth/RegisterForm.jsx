@@ -1,6 +1,6 @@
 // src/components/RegisterForm.jsx
 import { useState } from "react";
-import { register } from "../services/AuthService";
+import { register } from "../../services/AuthService";
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");

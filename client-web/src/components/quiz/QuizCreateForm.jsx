@@ -1,6 +1,7 @@
 // src/components/QuizCreateForm.jsx
 import { useState } from "react";
-import { createQuiz } from "../services/QuizService";
+import { createQuiz } from "../../services/QuizService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function QuizCreateForm() {
   const [topic, setTopic] = useState("");
@@ -9,7 +10,7 @@ export default function QuizCreateForm() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("jwt");
+    const token = getAuthToken();
     if (!token) {
       setMessage("Devi effettuare il login per creare un quiz.");
       return;
@@ -17,7 +18,7 @@ export default function QuizCreateForm() {
     setLoading(true);
     const result = await createQuiz(topic, token);
     setLoading(false);
-    if (result.id) {
+    if (result.success) {
       setMessage(`Quiz creato con successo: ${result.title}`);
       setTopic("");
     } else {

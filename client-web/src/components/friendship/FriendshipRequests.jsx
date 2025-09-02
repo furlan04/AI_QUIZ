@@ -1,5 +1,11 @@
 // src/components/FriendshipRequests.jsx
 import { useState, useEffect } from "react";
+import { 
+  getFriendshipRequests, 
+  sendFriendshipRequest, 
+  acceptFriendshipRequest 
+} from "../../services/FriendshipService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function FriendshipRequests() {
   const [email, setEmail] = useState("");
@@ -12,25 +18,12 @@ export default function FriendshipRequests() {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + "/Friendship/requests", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setRequests(data);
-      } else {
-        setMessage("Errore nel caricamento delle richieste");
-        setMessageType("error");
-      }
+      const token = getAuthToken();
+      const data = await getFriendshipRequests(token);
+      setRequests(data);
     } catch (error) {
       console.error(error);
-      setMessage("Errore di connessione al server");
+      setMessage("Errore nel caricamento delle richieste");
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -44,27 +37,14 @@ export default function FriendshipRequests() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + `/Friendship/send-request/${email}`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        setMessage("Richiesta di amicizia inviata con successo!");
-        setMessageType("success");
-        setEmail("");
-      } else {
-        const errorData = await response.json();
-        setMessage(errorData.message || "Errore nell'invio della richiesta");
-        setMessageType("error");
-      }
+      const token = getAuthToken();
+      await sendFriendshipRequest(email, token);
+      setMessage("Richiesta di amicizia inviata con successo!");
+      setMessageType("success");
+      setEmail("");
     } catch (error) {
       console.error(error);
-      setMessage("Errore di connessione al server");
+      setMessage(error.message || "Errore nell'invio della richiesta");
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -75,27 +55,15 @@ export default function FriendshipRequests() {
   const acceptRequest = async (friendshipId) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + `/Friendship/accept-request/${friendshipId}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        setMessage("Richiesta di amicizia accettata!");
-        setMessageType("success");
-        // Ricarica le richieste per aggiornare la lista
-        fetchRequests();
-      } else {
-        setMessage("Errore nell'accettare la richiesta");
-        setMessageType("error");
-      }
+      const token = getAuthToken();
+      await acceptFriendshipRequest(friendshipId, token);
+      setMessage("Richiesta di amicizia accettata!");
+      setMessageType("success");
+      // Ricarica le richieste per aggiornare la lista
+      fetchRequests();
     } catch (error) {
       console.error(error);
-      setMessage("Errore di connessione al server");
+      setMessage("Errore nell'accettare la richiesta");
       setMessageType("error");
     } finally {
       setLoading(false);

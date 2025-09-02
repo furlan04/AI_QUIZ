@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { getQuizById } from "../../services/QuizService";
+import { submitQuizAttempt } from "../../services/QuizAttemptService";
+import { getAuthToken } from "../../services/CommonService";
 import "./QuizPlay.css"; // CSS separato per le animazioni
 
 export default function QuizPlay() {
@@ -15,13 +18,17 @@ export default function QuizPlay() {
   useEffect(() => {
     if (!id || id === "undefined") return;
 
-    const token = localStorage.getItem("jwt");
-    fetch(`${process.env.REACT_APP_ENDPOINT}/Quiz/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setQuiz(data))
-      .catch((err) => console.error("Errore caricamento quiz:", err));
+    const fetchQuiz = async () => {
+      try {
+        const token = getAuthToken();
+        const quizData = await getQuizById(id, token);
+        setQuiz(quizData);
+      } catch (err) {
+        console.error("Errore caricamento quiz:", err);
+      }
+    };
+
+    fetchQuiz();
   }, [id]);
 
   if (!id || id === "undefined") {
@@ -62,37 +69,13 @@ export default function QuizPlay() {
     };
 
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/QuizAttempt/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setResult(result);
-        setShowResult(true);
-      } else {
-        console.error('Errore invio quiz:', response.statusText);
-        // Fallback al calcolo locale in caso di errore
-        const correct = quiz.questions.reduce(
-          (acc, q, idx) => (answers[idx] === q.correctAnswerIndex ? acc + 1 : acc),
-          0
-        );
-        setResult({
-          score: correct,
-          percentage: Math.round((correct / quiz.questions.length) * 100),
-          totalQuestions: quiz.questions.length
-        });
-        setShowResult(true);
-      }
+      const token = getAuthToken();
+      const result = await submitQuizAttempt(submitData, token);
+      setResult(result);
+      setShowResult(true);
     } catch (error) {
-      console.error('Errore durante invio quiz:', error);
-      // Fallback al calcolo locale
+      console.error('Errore invio quiz:', error);
+      // Fallback al calcolo locale in caso di errore
       const correct = quiz.questions.reduce(
         (acc, q, idx) => (answers[idx] === q.correctAnswerIndex ? acc + 1 : acc),
         0

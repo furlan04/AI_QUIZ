@@ -1,6 +1,8 @@
 // src/components/Leaderboard.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { getLeaderboard } from "../../services/QuizAttemptService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState(null);
@@ -14,23 +16,12 @@ export default function Leaderboard() {
       setError(null);
       
       try {
-        const token = localStorage.getItem("jwt");
+        const token = getAuthToken();
         if (!token) {
           throw new Error("Token non trovato");
         }
 
-        const response = await fetch(process.env.REACT_APP_ENDPOINT + `/QuizAttempt/leaderboard/${quizId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await getLeaderboard(quizId, token);
         setLeaderboardData(data);
       } catch (err) {
         console.error("Errore nel caricamento della classifica:", err);

@@ -1,6 +1,8 @@
 // src/components/QuizAttempts.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { getMyAttempts } from "../../services/QuizAttemptService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function QuizAttempts() {
   const [attempts, setAttempts] = useState([]);
@@ -15,23 +17,12 @@ export default function QuizAttempts() {
       setError(null);
       
       try {
-        const token = localStorage.getItem("jwt");
+        const token = getAuthToken();
         if (!token) {
           throw new Error("Token non trovato");
         }
 
-        const response = await fetch(process.env.REACT_APP_ENDPOINT + `/QuizAttempt/my-attempts/${quizId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Errore HTTP: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await getMyAttempts(quizId, token);
         setAttempts(data);
         
         // Calcola statistiche generali

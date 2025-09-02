@@ -1,7 +1,8 @@
 // src/components/FriendsList.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import { getFriendsList, removeFriendship } from "../../services/FriendshipService";
+import { getAuthToken } from "../../services/CommonService";
 
 export default function FriendsList() {
   const [friends, setFriends] = useState([]);
@@ -14,25 +15,12 @@ export default function FriendsList() {
   const fetchFriends = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + "/Friendship/friend-list", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFriends(data);
-      } else {
-        setMessage("Errore nel caricamento della lista amici");
-        setMessageType("error");
-      }
+      const token = getAuthToken();
+      const data = await getFriendsList(token);
+      setFriends(data);
     } catch (error) {
       console.error(error);
-      setMessage("Errore di connessione al server");
+      setMessage("Errore nel caricamento della lista amici");
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -47,27 +35,15 @@ export default function FriendsList() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("jwt");
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + `/Friendship/remove-friendship/${friendshipId}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        setMessage("Amicizia rimossa con successo");
-        setMessageType("success");
-        // Ricarica la lista degli amici
-        fetchFriends();
-      } else {
-        setMessage("Errore nella rimozione dell'amicizia");
-        setMessageType("error");
-      }
+      const token = getAuthToken();
+      await removeFriendship(friendshipId, token);
+      setMessage("Amicizia rimossa con successo");
+      setMessageType("success");
+      // Ricarica la lista degli amici
+      fetchFriends();
     } catch (error) {
       console.error(error);
-      setMessage("Errore di connessione al server");
+      setMessage("Errore nella rimozione dell'amicizia");
       setMessageType("error");
     } finally {
       setLoading(false);
