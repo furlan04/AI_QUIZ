@@ -1,5 +1,5 @@
 // src/services/AuthService.js
-import { handleHttpError, handleNetworkError, createHeaders } from './CommonService';
+import { handleNetworkError, createHeaders } from './CommonService';
 import { getConfig } from '../config/config';
 
 const API_URL = getConfig('API_ENDPOINT');
