@@ -53,7 +53,18 @@ namespace server_web.Controllers
                 // Invia l'email di conferma
                 try
                 {
-                    await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
+                            Console.WriteLine("Email inviata in background");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Errore invio email in background: {ex.Message}");
+                        }
+                    });
                     return Ok(new
                     {
                         message = "Utente registrato con successo. Controlla la tua email per confermare l'account.",
