@@ -82,10 +82,10 @@ export default function QuizList() {
   }
 
   return (
-    <div className="container my-5">
+    <div className="container my-3 my-lg-5">
       {/* Header Section */}
-      <div className="row align-items-center mb-5">
-        <div className="col-lg-8">
+      <div className="row align-items-center mb-4 mb-lg-5">
+        <div className="col-lg-8 mb-3 mb-lg-0">
           <h1 className="display-5 fw-bold text-primary mb-2">{pageTitle}</h1>
           <p className="lead text-muted mb-0">
             {isMyQuizzes 
@@ -96,7 +96,7 @@ export default function QuizList() {
         </div>
         {isMyQuizzes && (
           <div className="col-lg-4 text-lg-end">
-            <Link to="/quizzes/create" className="btn btn-primary btn-lg">
+            <Link to="/quizzes/create" className="btn btn-primary btn-lg w-100 w-lg-auto">
               <span className="me-2">✨</span>
               Crea Nuovo Quiz
             </Link>
@@ -105,11 +105,11 @@ export default function QuizList() {
       </div>
 
       {/* Quiz Grid */}
-      <div className="row g-4">
+      <div className="row g-3 g-lg-4">
         {quizzes.map((quiz) => (
-          <div key={quiz.id} className="col-md-6 col-lg-4">
+          <div key={quiz.id} className="col-12 col-md-6 col-lg-4">
             <div className="card h-100 border-0 shadow-sm quiz-card">
-              <div className="card-body d-flex flex-column p-4">
+              <div className="card-body d-flex flex-column p-3 p-lg-4">
                 {/* Quiz Status Badge */}
                 {quiz.isActive !== undefined && (
                   <div className="mb-3">
@@ -127,25 +127,25 @@ export default function QuizList() {
                 )}
 
                 {/* Quiz Content */}
-                <h5 className="card-title fw-bold mb-3 text-dark">{quiz.title}</h5>
-                <p className="card-text text-muted flex-grow-1 mb-4">
+                <h5 className="card-title fw-bold mb-3 text-dark h6">{quiz.title}</h5>
+                <p className="card-text text-muted flex-grow-1 mb-3 mb-lg-4 small">
                   {quiz.description || "Nessuna descrizione disponibile"}
                 </p>
 
                 {/* Action Buttons */}
                 <div className="mt-auto d-grid gap-2">
-                  <Link to={`/quiz/${quiz.id}`} className="btn btn-primary">
+                  <Link to={`/quiz/${quiz.id}`} className="btn btn-primary btn-sm">
                     <span className="me-2">🎮</span>
                     Gioca Quiz
                   </Link>
                   
                   {/* Accesso a Classifica e Tentativi per tutti gli utenti */}
                   <div className="d-grid gap-2">
-                    <Link to={`/leaderboard/${quiz.id}`} className="btn btn-outline-primary">
+                    <Link to={`/leaderboard/${quiz.id}`} className="btn btn-outline-primary btn-sm">
                       <span className="me-2">🏆</span>
                       Vedi Classifica
                     </Link>
-                    <Link to={`/attempts/${quiz.id}`} className="btn btn-outline-info">
+                    <Link to={`/attempts/${quiz.id}`} className="btn btn-outline-info btn-sm">
                       <span className="me-2">📊</span>
                       I miei Tentativi
                     </Link>

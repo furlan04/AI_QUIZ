@@ -115,14 +115,14 @@ export default function QuizPlay() {
   const isSelected = (i) => answers[currentIndex] === i;
 
   return (
-    <div className="container my-5">
-      <div className={`card shadow-lg p-4 quiz-card ${fade ? "fade-in" : "fade-out"}`}>
+    <div className="container my-3 my-lg-5">
+      <div className={`card shadow-lg p-3 p-lg-4 quiz-card ${fade ? "fade-in" : "fade-out"}`}>
         {!showResult ? (
           <>
-            <h3 className="card-title mb-3">{quiz.title}</h3>
-            <p className="text-muted mb-4">{question.text}</p>
+            <h3 className="card-title mb-3 h4">{quiz.title}</h3>
+            <p className="text-muted mb-3 mb-lg-4">{question.text}</p>
 
-            <div className="list-group mb-4">
+            <div className="list-group mb-3 mb-lg-4">
               {question.options.map((opt, i) => (
                 <button
                   key={i}
@@ -132,17 +132,19 @@ export default function QuizPlay() {
                   onClick={() => handleOptionClick(i)}
                   disabled={isSubmitting}
                 >
-                  {opt}
-                  {isSelected(i) && (
-                    <span className="badge bg-primary float-end">Selezionata</span>
-                  )}
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-start">{opt}</span>
+                    {isSelected(i) && (
+                      <span className="badge bg-primary">Selezionata</span>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
 
             <div className="d-flex justify-content-end">
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-lg w-100 w-lg-auto"
                 onClick={handleNext}
                 disabled={answers[currentIndex] === undefined || isSubmitting}
               >
@@ -159,13 +161,13 @@ export default function QuizPlay() {
           </>
         ) : (
           <div className="text-center">
-            <h3>Quiz completato!</h3>
-            <div className="my-4">
-              <h4 className="text-primary">Punteggio: {result.score}/{result.totalQuestions}</h4>
+            <h3 className="h4">Quiz completato!</h3>
+            <div className="my-3 my-lg-4">
+              <h4 className="text-primary h5">Punteggio: {result.score}/{result.totalQuestions}</h4>
               <p className="lead">Percentuale: {result.percentage}%</p>
             </div>
             <button
-              className="btn btn-success"
+              className="btn btn-success btn-lg w-100 w-lg-auto"
               onClick={resetQuiz}
             >
               Riprova
