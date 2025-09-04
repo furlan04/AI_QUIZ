@@ -11,6 +11,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsProduction() && builder.Configuration.GetValue<int?>("PORT") is not null)
+    builder.WebHost.UseUrls($"http://*:{builder.Configuration.GetValue<int?>("PORT")}");
+
 // Legge la stringa di connessione
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
