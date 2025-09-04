@@ -7,7 +7,6 @@ using server_web.Services.Email;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Encodings.Web;
 
 namespace server_web.Controllers
 {
@@ -53,18 +52,7 @@ namespace server_web.Controllers
                 // Invia l'email di conferma
                 try
                 {
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
-                            Console.WriteLine("Email inviata in background");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Errore invio email in background: {ex.Message}");
-                        }
-                    });
+                    //await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
                     return Ok(new
                     {
                         message = "Utente registrato con successo. Controlla la tua email per confermare l'account.",
@@ -95,6 +83,7 @@ namespace server_web.Controllers
             if (user == null) return Unauthorized("Email o password errati");
 
             // Verifica se l'email è confermata
+            /*
             if (!await _userManager.IsEmailConfirmedAsync(user))
             {
                 return BadRequest(new
@@ -103,6 +92,7 @@ namespace server_web.Controllers
                     emailNotConfirmed = true
                 });
             }
+            */
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded) return Unauthorized("Email o password errati");
