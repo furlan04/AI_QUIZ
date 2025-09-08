@@ -1,151 +1,232 @@
-// src/components/Navbar.jsx (Versione moderna con icone e design migliorato)
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 export default function Navbar({ isLoggedIn, onLogout }) {
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const isActive = (path) => location.pathname === path;
+
+  if (!isLoggedIn) {
+    // Public navbar - now using the same style as authenticated
+    return (
+      <>
+        {/* Desktop Navbar */}
+        <aside className="sidebar-desktop">
+          <div className="sidebar-content">
+            {/* Logo */}
+            <Link className="sidebar-brand" to="/">
+              <div className="brand-logo">
+                <span className="brand-icon">🧠</span>
+              </div>
+              <span className="brand-text">AI Quiz</span>
+            </Link>
+
+            {/* Navigation Menu for non-authenticated users */}
+            <nav className="sidebar-nav">
+              <Link 
+                to="/" 
+                className={`nav-item ${isActive('/') ? 'active' : ''}`}
+              >
+                <span className="nav-icon">🏠</span>
+                <span className="nav-text">Home</span>
+              </Link>
+
+              <Link 
+                to="/login" 
+                className={`nav-item ${isActive('/login') ? 'active' : ''}`}
+              >
+                <span className="nav-icon">🔑</span>
+                <span className="nav-text">Accedi</span>
+              </Link>
+
+              <Link 
+                to="/register" 
+                className={`nav-item ${isActive('/register') ? 'active' : ''}`}
+              >
+                <span className="nav-icon">📝</span>
+                <span className="nav-text">Registrati</span>
+              </Link>
+            </nav>
+          </div>
+        </aside>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="sidebar-mobile">
+          <Link 
+            to="/" 
+            className={`mobile-nav-item ${isActive('/') ? 'active' : ''}`}
+          >
+            <span className="mobile-nav-icon">🏠</span>
+            <span className="mobile-nav-text">Home</span>
+          </Link>
+
+          <Link 
+            to="/login" 
+            className={`mobile-nav-item ${isActive('/login') ? 'active' : ''}`}
+          >
+            <span className="mobile-nav-icon">🔑</span>
+            <span className="mobile-nav-text">Accedi</span>
+          </Link>
+
+          <Link 
+            to="/register" 
+            className={`mobile-nav-item ${isActive('/register') ? 'active' : ''}`}
+          >
+            <span className="mobile-nav-icon">📝</span>
+            <span className="mobile-nav-text">Registrati</span>
+          </Link>
+        </nav>
+      </>
+    );
+  }
+
+  // Instagram-like sidebar for authenticated users - unchanged
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-gradient-primary shadow-lg">
-      <div className="container">
-        {/* Brand/Logo */}
-        <Link className="navbar-brand d-flex align-items-center fw-bold text-dark" to="/">
-          <span className="bg-primary bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center me-2" style={{width: '40px', height: '40px'}}>
-            <span className="text-primary fw-bold">Q</span>
-          </span>
-          <span className="d-none d-sm-inline">AI Quiz Network</span>
-          <span className="d-inline d-sm-none">AI Quiz</span>
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="sidebar-desktop">
+        <div className="sidebar-content">
+          {/* Logo */}
+          <Link className="sidebar-brand" to="/">
+            <div className="brand-logo">
+              <span className="brand-icon">🧠</span>
+            </div>
+            <span className="brand-text">AI Quiz</span>
+          </Link>
+
+          {/* Navigation Menu */}
+          <nav className="sidebar-nav">
+            <Link 
+              to="/" 
+              className={`nav-item ${isActive('/') ? 'active' : ''}`}
+            >
+              <span className="nav-icon">🏠</span>
+              <span className="nav-text">Home</span>
+            </Link>
+
+            <Link 
+              to="/quizzes" 
+              className={`nav-item ${isActive('/quizzes') ? 'active' : ''}`}
+            >
+              <span className="nav-icon">📚</span>
+              <span className="nav-text">I Miei Quiz</span>
+            </Link>
+
+            <Link 
+              to="/quizzes/create" 
+              className={`nav-item ${isActive('/quizzes/create') ? 'active' : ''}`}
+            >
+              <span className="nav-icon">✨</span>
+              <span className="nav-text">Crea Quiz</span>
+            </Link>
+
+            <div className="nav-dropdown">
+              <button 
+                className={`nav-item dropdown-toggle ${dropdownOpen ? 'active' : ''}`}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <span className="nav-icon">👥</span>
+                <span className="nav-text">Amicizie</span>
+                <span className="dropdown-arrow">▼</span>
+              </button>
+              
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link 
+                    to="/friendship/requests" 
+                    className="dropdown-item"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <span className="dropdown-icon">📨</span>
+                    Richieste
+                  </Link>
+                  <Link 
+                    to="/friendship/friends" 
+                    className="dropdown-item"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <span className="dropdown-icon">🤝</span>
+                    Amici
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <button 
+              onClick={onLogout} 
+              className="nav-item logout-btn"
+            >
+              <span className="nav-icon">🚪</span>
+              <span className="nav-text">Logout</span>
+            </button>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="sidebar-mobile">
+        <Link 
+          to="/" 
+          className={`mobile-nav-item ${isActive('/') ? 'active' : ''}`}
+        >
+          <span className="mobile-nav-icon">🏠</span>
+          <span className="mobile-nav-text">Home</span>
         </Link>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="navbar-toggler border-0"
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-controls="navbarNav"
-          aria-expanded={mobileMenuOpen}
-          aria-label="Toggle navigation"
+        <Link 
+          to="/quizzes" 
+          className={`mobile-nav-item ${isActive('/quizzes') ? 'active' : ''}`}
         >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+          <span className="mobile-nav-icon">📚</span>
+          <span className="mobile-nav-text">Quiz</span>
+        </Link>
 
-        {/* Navigation Links */}
-        <div className={`collapse navbar-collapse ${mobileMenuOpen ? 'show' : ''}`} id="navbarNav">
-          <div className="navbar-nav ms-auto d-flex align-items-center gap-2 gap-lg-3 flex-wrap">
-            {!isLoggedIn ? (
-              // Non autenticato
-              <>
-                <Link 
-                  to="/register" 
-                  className="btn btn-primary btn-sm px-2 px-lg-3 d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="fw-bold">📝</span>
-                  <span className="d-none d-sm-inline">Registrati</span>
-                  <span className="d-inline d-sm-none">Reg.</span>
-                </Link>
-                <Link 
-                  to="/login" 
-                  className="btn btn-outline-primary btn-sm px-2 px-lg-3 d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="fw-bold">🔑</span>
-                  <span className="d-none d-sm-inline">Accedi</span>
-                  <span className="d-inline d-sm-none">Login</span>
-                </Link>
-              </>
-            ) : (
-              // Autenticato
-              <>
-                {/* Quiz Management */}
-                <Link 
-                  to="/quizzes" 
-                  className="btn btn-outline-primary btn-sm px-2 px-lg-3 d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="fw-bold">📚</span>
-                  <span className="d-none d-sm-inline">I Miei Quiz</span>
-                  <span className="d-inline d-sm-none">Quiz</span>
-                </Link>
-                
-                <Link 
-                  to="/quizzes/create" 
-                  className="btn btn-outline-primary btn-sm px-2 px-lg-3 d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="fw-bold">✨</span>
-                  <span className="d-none d-sm-inline">Crea Quiz</span>
-                  <span className="d-inline d-sm-none">Crea</span>
-                </Link>
-                
-                {/* Friendships Dropdown */}
-                <div className="dropdown position-relative w-100 w-lg-auto">
-                  <button 
-                    className="btn btn-outline-primary btn-sm px-2 px-lg-3 dropdown-toggle d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start" 
-                    type="button"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                    onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
-                  >
-                    <span className="fw-bold">👥</span>
-                    <span className="d-none d-sm-inline">Amicizie</span>
-                    <span className="d-inline d-sm-none">Amici</span>
-                  </button>
-                  <ul 
-                    className={`dropdown-menu dropdown-menu-end shadow-lg border-0 ${dropdownOpen ? 'show' : ''}`}
-                    style={{ 
-                      top: '100%', 
-                      right: '0',
-                      zIndex: 1000,
-                      minWidth: '200px'
-                    }}
-                  >
-                    <li>
-                      <Link 
-                        className="dropdown-item d-flex align-items-center gap-2 py-2" 
-                        to="/friendship/requests"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <span className="fw-bold">📨</span>
-                        Gestisci Richieste
-                      </Link>
-                    </li>
-                    <li>
-                      <Link 
-                        className="dropdown-item d-flex align-items-center gap-2 py-2" 
-                        to="/friendship/friends"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <span className="fw-bold">🤝</span>
-                        I Miei Amici
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                
-                {/* Logout Button */}
-                <button 
-                  onClick={() => {
-                    onLogout();
-                    setMobileMenuOpen(false);
-                  }} 
-                  className="btn btn-danger btn-sm px-2 px-lg-3 d-flex align-items-center gap-1 gap-lg-2 w-100 w-lg-auto justify-content-center justify-content-lg-start"
-                >
-                  <span className="fw-bold">🚪</span>
-                  <span className="d-none d-sm-inline">Logout</span>
-                  <span className="d-inline d-sm-none">Esci</span>
-                </button>
-              </>
-            )}
-          </div>
+        <Link 
+          to="/quizzes/create" 
+          className={`mobile-nav-item ${isActive('/quizzes/create') ? 'active' : ''}`}
+        >
+          <span className="mobile-nav-icon">✨</span>
+          <span className="mobile-nav-text">Crea</span>
+        </Link>
+
+        <div className="mobile-nav-dropdown">
+          <button 
+            className={`mobile-nav-item ${dropdownOpen ? 'active' : ''}`}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            <span className="mobile-nav-icon">👥</span>
+            <span className="mobile-nav-text">Amici</span>
+          </button>
+          
+          {dropdownOpen && (
+            <div className="mobile-dropdown-menu">
+              <Link 
+                to="/friendship/requests" 
+                className="mobile-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                📨 Richieste
+              </Link>
+              <Link 
+                to="/friendship/friends" 
+                className="mobile-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                🤝 Amici
+              </Link>
+            </div>
+          )}
         </div>
-      </div>
-    </nav>
+
+        <button 
+          onClick={onLogout} 
+          className="mobile-nav-item logout-btn"
+        >
+          <span className="mobile-nav-icon">🚪</span>
+          <span className="mobile-nav-text">Esci</span>
+        </button>
+      </nav>
+    </>
   );
 }

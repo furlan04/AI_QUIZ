@@ -1,4 +1,3 @@
-// src/components/FriendsList.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { getFriendsList, removeFriendship } from "../../services/FriendshipService";
@@ -11,7 +10,6 @@ export default function FriendsList() {
   const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
 
-  // Recupera la lista degli amici
   const fetchFriends = async () => {
     setLoading(true);
     try {
@@ -27,7 +25,6 @@ export default function FriendsList() {
     }
   };
 
-  // Rimuovi amicizia
   const removeFriend = async (friendshipId) => {
     if (!window.confirm("Sei sicuro di voler rimuovere questa amicizia?")) {
       return;
@@ -39,7 +36,6 @@ export default function FriendsList() {
       await removeFriendship(friendshipId, token);
       setMessage("Amicizia rimossa con successo");
       setMessageType("success");
-      // Ricarica la lista degli amici
       fetchFriends();
     } catch (error) {
       console.error(error);
@@ -50,7 +46,6 @@ export default function FriendsList() {
     }
   };
 
-  // Helpers
   const getInitials = (email) => {
     if (!email) return "?";
     const name = email.split('@')[0];
@@ -59,12 +54,10 @@ export default function FriendsList() {
     return initials || name.slice(0,2).toUpperCase();
   };
 
-  // Carica gli amici al montaggio del componente
   useEffect(() => {
     fetchFriends();
   }, []);
 
-  // Pulisce il messaggio dopo 3 secondi
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
@@ -76,94 +69,106 @@ export default function FriendsList() {
   }, [message]);
 
   return (
-    <div className="container my-5">
-      <div className="row align-items-center mb-4">
-        <div className="col">
-          <h2 className="fw-bold text-primary mb-0">I Miei Amici</h2>
-          <small className="text-muted">Gestisci le tue connessioni e scopri i quiz dei tuoi amici</small>
-        </div>
-        <div className="col-auto">
+    <div className="friends-list-container">
+      <div className="friends-header">
+        <div className="header-content">
+          <div className="header-text">
+            <h1 className="page-title">I Miei Amici</h1>
+            <p className="page-subtitle">
+              Gestisci le tue connessioni e scopri i quiz dei tuoi amici
+            </p>
+          </div>
           <button 
             onClick={fetchFriends}
-            className="btn btn-outline-primary"
+            className="btn btn-outline btn-refresh"
             disabled={loading}
           >
-            {loading ? "Caricamento..." : "↻ Aggiorna"}
+            <span className="btn-icon">🔄</span>
+            Aggiorna
           </button>
         </div>
       </div>
 
-      {/* Messaggi di feedback */}
+      {/* Feedback Messages */}
       {message && (
-        <div className={`alert ${messageType === 'success' ? 'alert-success' : 'alert-danger'}`}>
-          {message}
+        <div className={`alert ${messageType === 'success' ? 'alert-success' : 'alert-error'}`}>
+          <div className="alert-content">
+            <span className="alert-icon">
+              {messageType === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="alert-text">{message}</span>
+          </div>
         </div>
       )}
 
-      {/* Lista degli amici */}
+      {/* Friends List */}
       {loading && friends.length === 0 ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
-            <span className="visually-hidden">Caricamento...</span>
-          </div>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Caricamento amici...</p>
         </div>
       ) : friends.length === 0 ? (
-        <div className="text-center">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body py-5">
-              <div className="display-6 mb-3">👋</div>
-              <h5 className="card-title text-muted">Nessun amico ancora</h5>
-              <p className="card-text mb-4">
-                Non hai ancora nessun amico nella tua lista.
-                Inizia inviando qualche richiesta di amicizia!
-              </p>
-              <a href="/friendship/requests" className="btn btn-primary">
-                ➕ Gestisci Richieste
-              </a>
-            </div>
-          </div>
+        <div className="empty-state">
+          <div className="empty-icon">👋</div>
+          <h2 className="empty-title">Nessun amico ancora</h2>
+          <p className="empty-message">
+            Non hai ancora nessun amico nella tua lista.
+            Inizia inviando qualche richiesta di amicizia!
+          </p>
+          <a href="/friendship/requests" className="btn btn-primary btn-empty">
+            <span className="btn-icon">➕</span>
+            Gestisci Richieste
+          </a>
         </div>
       ) : (
         <>
-          <div className="mb-3">
-            <small className="text-muted">
+          <div className="friends-stats">
+            <span className="stats-text">
               {friends.length} {friends.length === 1 ? 'amico' : 'amici'} trovati
-            </small>
+            </span>
           </div>
-          <div className="row g-4">
+          
+          <div className="friends-grid">
             {friends.map((friend) => (
-              <div key={friend.friendshipId || friend.id} className="col-md-6 col-lg-4">
-                <div className="card h-100 border-0 shadow-sm">
-                  <div className="card-body d-flex flex-column p-4">
-                    <div className="d-flex align-items-center mb-3">
-                      <div className="avatar-circle bg-primary bg-opacity-10 text-primary me-3">
-                        {getInitials(friend.friendEmail)}
-                      </div>
-                      <div>
-                        <div className="fw-bold text-dark">{friend.friendEmail}</div>
-                        {friend.since && (
-                          <small className="text-muted">Amici dal {new Date(friend.since).toLocaleDateString('it-IT')}</small>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="mt-auto d-flex gap-2">
-                      <button
-                        onClick={() => navigate(`/quizzes/${friend.friendId}`)}
-                        className="btn btn-outline-primary btn-sm flex-grow-1"
-                        disabled={loading}
-                      >
-                        📚 Vedi Quiz
-                      </button>
-                      <button
-                        onClick={() => removeFriend(friend.friendshipId || friend.id)}
-                        className="btn btn-outline-danger btn-sm"
-                        disabled={loading}
-                      >
-                        🗑️ Rimuovi
-                      </button>
-                    </div>
+              <div key={friend.friendshipId || friend.id} className="friend-card">
+                <div className="friend-header">
+                  <div className="friend-avatar">
+                    <span className="avatar-text">
+                      {getInitials(friend.friendEmail)}
+                    </span>
                   </div>
+                  <div className="friend-status">
+                    <span className="status-dot"></span>
+                    <span className="status-text">Online</span>
+                  </div>
+                </div>
+                
+                <div className="friend-content">
+                  <h3 className="friend-email">{friend.friendEmail}</h3>
+                  {friend.since && (
+                    <p className="friend-since">
+                      Amici dal {new Date(friend.since).toLocaleDateString('it-IT')}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="friend-actions">
+                  <button
+                    onClick={() => navigate(`/quizzes/${friend.friendId}`)}
+                    className="btn btn-primary btn-view-quizzes"
+                    disabled={loading}
+                  >
+                    <span className="btn-icon">📚</span>
+                    Vedi Quiz
+                  </button>
+                  <button
+                    onClick={() => removeFriend(friend.friendshipId || friend.id)}
+                    className="btn btn-outline btn-remove"
+                    disabled={loading}
+                  >
+                    <span className="btn-icon">🗑️</span>
+                    Rimuovi
+                  </button>
                 </div>
               </div>
             ))}

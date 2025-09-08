@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { getQuizById } from "../../services/QuizService";
 import { submitQuizAttempt } from "../../services/QuizAttemptService";
 import { getAuthToken } from "../../services/CommonService";
-import "./QuizPlay.css"; // CSS separato per le animazioni
 
 export default function QuizPlay() {
   const { id } = useParams();
@@ -33,21 +32,36 @@ export default function QuizPlay() {
 
   if (!id || id === "undefined") {
     return (
-      <div className="container mt-5">
-        <div className="alert alert-danger">
-          <h4>Errore: ID Quiz non valido</h4>
+      <div className="quiz-play-container">
+        <div className="error-state">
+          <div className="error-icon">❌</div>
+          <h2 className="error-title">Errore: ID Quiz non valido</h2>
         </div>
       </div>
     );
   }
 
-  if (!quiz) return <div className="container mt-5">Caricamento quiz...</div>;
-  if (!quiz.questions || !Array.isArray(quiz.questions))
+  if (!quiz) {
     return (
-      <div className="container mt-5">
-        <div className="alert alert-warning">Il quiz non contiene domande valide.</div>
+      <div className="quiz-play-container">
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Caricamento quiz...</p>
+        </div>
       </div>
     );
+  }
+
+  if (!quiz.questions || !Array.isArray(quiz.questions)) {
+    return (
+      <div className="quiz-play-container">
+        <div className="error-state">
+          <div className="error-icon">⚠️</div>
+          <h2 className="error-title">Il quiz non contiene domande valide</h2>
+        </div>
+      </div>
+    );
+  }
 
   const question = quiz.questions[currentIndex];
 
@@ -58,7 +72,6 @@ export default function QuizPlay() {
   const submitQuiz = async () => {
     setIsSubmitting(true);
     
-    // Prepara i dati per la chiamata API
     const submitData = {
       quizId: id,
       answers: quiz.questions.map((q, index) => ({
@@ -75,7 +88,6 @@ export default function QuizPlay() {
       setShowResult(true);
     } catch (error) {
       console.error('Errore invio quiz:', error);
-      // Fallback al calcolo locale in caso di errore
       const correct = quiz.questions.reduce(
         (acc, q, idx) => (answers[idx] === q.correctAnswerIndex ? acc + 1 : acc),
         0
@@ -92,17 +104,16 @@ export default function QuizPlay() {
   };
 
   const handleNext = () => {
-    setFade(false); // avvia fade out
+    setFade(false);
     setTimeout(async () => {
       if (currentIndex + 1 < quiz.questions.length) {
         setCurrentIndex(currentIndex + 1);
-        setFade(true); // fade in nuova domanda
+        setFade(true);
       } else {
-        // Ultima domanda - invia il quiz
         await submitQuiz();
-        setFade(true); // fade in risultato
+        setFade(true);
       }
-    }, 300); // durata della transizione
+    }, 300);
   };
 
   const resetQuiz = () => {
@@ -115,63 +126,112 @@ export default function QuizPlay() {
   const isSelected = (i) => answers[currentIndex] === i;
 
   return (
-    <div className="container my-3 my-lg-5">
-      <div className={`card shadow-lg p-3 p-lg-4 quiz-card ${fade ? "fade-in" : "fade-out"}`}>
+    <div className="quiz-play-container">
+      <div className={`quiz-play-card ${fade ? "fade-in" : "fade-out"}`}>
         {!showResult ? (
           <>
-            <h3 className="card-title mb-3 h4">{quiz.title}</h3>
-            <p className="text-muted mb-3 mb-lg-4">{question.text}</p>
+            {/* Quiz Header */}
+            <div className="quiz-header">
+              <div className="quiz-progress">
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill" 
+                    style={{ width: `${((currentIndex + 1) / quiz.questions.length) * 100}%` }}
+                  ></div>
+                </div>
+                <span className="progress-text">
+                  Domanda {currentIndex + 1} di {quiz.questions.length}
+                </span>
+              </div>
+              <h1 className="quiz-title">{quiz.title}</h1>
+            </div>
 
-            <div className="list-group mb-3 mb-lg-4">
+            {/* Question */}
+            <div className="question-container">
+              <h2 className="question-text">{question.text}</h2>
+            </div>
+
+            {/* Options */}
+            <div className="options-container">
               {question.options.map((opt, i) => (
                 <button
                   key={i}
-                  className={`list-group-item list-group-item-action ${
-                    isSelected(i) ? "border border-3 border-primary bg-light" : ""
-                  }`}
+                  className={`option-button ${isSelected(i) ? 'selected' : ''}`}
                   onClick={() => handleOptionClick(i)}
                   disabled={isSubmitting}
                 >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="text-start">{opt}</span>
+                  <div className="option-content">
+                    <span className="option-letter">{String.fromCharCode(65 + i)}</span>
+                    <span className="option-text">{opt}</span>
                     {isSelected(i) && (
-                      <span className="badge bg-primary">Selezionata</span>
+                      <span className="option-check">✓</span>
                     )}
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="d-flex justify-content-end">
+            {/* Next Button */}
+            <div className="quiz-actions">
               <button
-                className="btn btn-primary btn-lg w-100 w-lg-auto"
+                className="btn btn-primary btn-next"
                 onClick={handleNext}
                 disabled={answers[currentIndex] === undefined || isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <div className="loading-spinner"></div>
                     Invio...
                   </>
                 ) : (
-                  currentIndex + 1 < quiz.questions.length ? "Prossima domanda" : "Vedi risultato"
+                  <>
+                    <span className="btn-icon">
+                      {currentIndex + 1 < quiz.questions.length ? "➡️" : "🏁"}
+                    </span>
+                    {currentIndex + 1 < quiz.questions.length ? "Prossima domanda" : "Vedi risultato"}
+                  </>
                 )}
               </button>
             </div>
           </>
         ) : (
-          <div className="text-center">
-            <h3 className="h4">Quiz completato!</h3>
-            <div className="my-3 my-lg-4">
-              <h4 className="text-primary h5">Punteggio: {result.score}/{result.totalQuestions}</h4>
-              <p className="lead">Percentuale: {result.percentage}%</p>
+          <div className="result-container">
+            <div className="result-header">
+              <div className="result-icon">🎉</div>
+              <h1 className="result-title">Quiz Completato!</h1>
             </div>
-            <button
-              className="btn btn-success btn-lg w-100 w-lg-auto"
-              onClick={resetQuiz}
-            >
-              Riprova
-            </button>
+            
+            <div className="result-stats">
+              <div className="stat-card">
+                <div className="stat-value">{result.score}</div>
+                <div className="stat-label">Risposte Corrette</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{result.totalQuestions}</div>
+                <div className="stat-label">Domande Totali</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{result.percentage}%</div>
+                <div className="stat-label">Percentuale</div>
+              </div>
+            </div>
+
+            <div className="result-message">
+              {result.percentage >= 80 ? (
+                <p className="success-message">🎯 Eccellente! Hai dimostrato una grande conoscenza!</p>
+              ) : result.percentage >= 60 ? (
+                <p className="good-message">👍 Buon lavoro! Continua così!</p>
+              ) : (
+                <p className="encourage-message">💪 Non mollare! Riprova per migliorare!</p>
+              )}
+            </div>
+
+            <div className="result-actions">
+              <button className="btn btn-primary btn-retry" onClick={resetQuiz}>
+                <span className="btn-icon">🔄</span>
+                Riprova Quiz
+              </button>
+            </div>
           </div>
         )}
       </div>
