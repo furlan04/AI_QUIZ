@@ -1,6 +1,5 @@
-// src/components/LoginForm.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../../services/AuthService";
 
 export default function LoginForm({ setIsLoggedIn }) {
@@ -8,26 +7,26 @@ export default function LoginForm({ setIsLoggedIn }) {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // reset error
+    setError("");
+    setLoading(true);
+    
     try {
       const result = await login(email, password);
 
       if (result.success && result.token) {
-        // Salvataggio JWT
         localStorage.setItem("jwt", result.token);
         setToken(result.token);
 
-        // Aggiornamento stato login nel componente padre
         if (setIsLoggedIn) {
           setIsLoggedIn(true);
         }
 
-        // Reindirizza alla lista quiz
         navigate("/quizzes");
       } else {
         setError(result.message || "Errore login");
@@ -35,26 +34,37 @@ export default function LoginForm({ setIsLoggedIn }) {
     } catch (err) {
       console.error(err);
       setError("Errore di connessione al server");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100 bg-gradient-primary">
-      <div className="container" style={{maxWidth: '460px'}}>
-        <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
-          <div className="card-header bg-white border-0 py-4">
-            <div className="text-center">
-              <div className="display-6 mb-2">🔑</div>
-              <h2 className="fw-bold mb-1">Accedi</h2>
-              <p className="text-muted mb-0">Bentornato su AI Quiz Network</p>
+    <div className="auth-container">
+      <div className="auth-background">
+        <div className="auth-gradient"></div>
+        <div className="auth-pattern"></div>
+      </div>
+      
+      <div className="auth-content">
+        <div className="auth-card">
+          <div className="auth-header">
+            <div className="auth-logo">
+              <div className="brand-logo">
+                <span className="brand-icon">🧠</span>
+              </div>
+              <span className="brand-text">AI Quiz</span>
             </div>
+            <h1 className="auth-title">Bentornato!</h1>
+            <p className="auth-subtitle">Accedi al tuo account per continuare</p>
           </div>
-          <div className="card-body p-4">
-            <form onSubmit={handleLogin}>
-              <div className="mb-3">
+          
+          <div className="auth-form-container">
+            <form onSubmit={handleLogin} className="auth-form">
+              <div className="form-group">
                 <label className="form-label">Email</label>
-                <div className="input-group">
-                  <span className="input-group-text">@</span>
+                <div className="input-container">
+                  <div className="input-icon">📧</div>
                   <input
                     type="email"
                     className="form-control"
@@ -66,10 +76,10 @@ export default function LoginForm({ setIsLoggedIn }) {
                 </div>
               </div>
 
-              <div className="mb-3">
+              <div className="form-group">
                 <label className="form-label">Password</label>
-                <div className="input-group">
-                  <span className="input-group-text">🔒</span>
+                <div className="input-container">
+                  <div className="input-icon">🔒</div>
                   <input
                     type="password"
                     className="form-control"
@@ -81,29 +91,55 @@ export default function LoginForm({ setIsLoggedIn }) {
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary w-100">
-                Accedi
+              <button 
+                type="submit" 
+                className="btn btn-primary btn-auth"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    Accesso in corso...
+                  </>
+                ) : (
+                  <>
+                    <span className="btn-icon">🚀</span>
+                    Accedi
+                  </>
+                )}
               </button>
-
-              <div className="text-center mt-3">
-                <small className="text-muted">Non hai un account?</small>
-                <button type="button" className="btn btn-link p-1" onClick={() => navigate('/register')}>
-                  Registrati
-                </button>
-              </div>
-
-              {token && (
-                <div className="alert alert-success mt-3">
-                  Login effettuato!
-                </div>
-              )}
-
-              {error && (
-                <div className="alert alert-danger mt-3" role="alert">
-                  {error}
-                </div>
-              )}
             </form>
+
+            <div className="auth-divider">
+              <span>oppure</span>
+            </div>
+
+            <div className="auth-footer">
+              <p className="auth-switch-text">
+                Non hai un account? 
+                <Link to="/register" className="auth-link">
+                  Registrati qui
+                </Link>
+              </p>
+            </div>
+
+            {token && (
+              <div className="alert alert-success">
+                <div className="alert-content">
+                  <span className="alert-icon">✅</span>
+                  <span className="alert-text">Login effettuato con successo!</span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="alert alert-error">
+                <div className="alert-content">
+                  <span className="alert-icon">❌</span>
+                  <span className="alert-text">{error}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

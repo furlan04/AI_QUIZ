@@ -18,6 +18,7 @@ import {
   QuizAttempts,
   QuizReview
 } from "./components";
+import "./App.css";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -29,8 +30,10 @@ export default function App() {
 
   return (      
     <Router>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <Routes>
+      <div className={`app-container ${isLoggedIn ? 'authenticated' : 'public'}`}>
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+        <main className="main-content">
+          <Routes>
         {/* Rotta home - reindirizza ai quiz se loggato */}
         <Route 
           path="/" 
@@ -145,7 +148,9 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
-      </Routes>
+          </Routes>
+        </main>
+      </div>
     </Router>  
   );
 }

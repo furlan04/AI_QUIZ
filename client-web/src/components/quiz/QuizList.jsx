@@ -1,4 +1,3 @@
-// src/components/QuizList.jsx
 import { useEffect, useState } from "react";
 import { getMyQuizzes, getQuizzes } from "../../services/QuizService";
 import { getAuthToken } from "../../services/CommonService";
@@ -7,7 +6,7 @@ import { Link, useParams } from "react-router-dom";
 export default function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { userId } = useParams(); // Ottiene userId dall'URL se presente
+  const { userId } = useParams();
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -19,11 +18,8 @@ export default function QuizList() {
           let quizzesData;
           
           if (userId) {
-            // Se c'è userId nell'URL, prende i quiz di quell'utente
             quizzesData = await getQuizzes(token, userId);
-            console.log(quizzesData);
           } else {
-            // Altrimenti prende i quiz dell'utente corrente
             quizzesData = await getMyQuizzes(token);
           }
           
@@ -37,18 +33,17 @@ export default function QuizList() {
     };
 
     fetchQuizzes();
-  }, [userId]); // Dipendenza da userId per ricaricare quando cambia
+  }, [userId]);
 
-  const isMyQuizzes = !userId; // Determina se stiamo visualizzando i quiz dell'utente corrente
+  const isMyQuizzes = !userId;
   const pageTitle = isMyQuizzes ? "I miei Quiz" : `Quiz dell'utente`;
 
   if (loading) {
     return (
-      <div className="container mt-5">
-        <div className="d-flex justify-content-center">
-          <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
-            <span className="visually-hidden">Caricamento...</span>
-          </div>
+      <div className="quiz-list-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Caricamento quiz...</p>
         </div>
       </div>
     );
@@ -56,25 +51,21 @@ export default function QuizList() {
 
   if (quizzes.length === 0) {
     return (
-      <div className="container mt-5">
-        <div className="text-center py-5">
-          <div className="mb-4">
-            <span className="display-1 text-muted">📚</span>
-          </div>
-          <h2 className="text-muted mb-3">{pageTitle}</h2>
-          <div className="alert alert-info d-inline-block">
+      <div className="quiz-list-container">
+        <div className="empty-state">
+          <div className="empty-icon">📚</div>
+          <h2 className="empty-title">{pageTitle}</h2>
+          <div className="empty-message">
             {isMyQuizzes 
               ? "Non hai ancora creato nessun quiz. Inizia ora!" 
               : "Questo utente non ha ancora creato nessun quiz."
             }
           </div>
           {isMyQuizzes && (
-            <div className="mt-3">
-              <Link to="/quizzes/create" className="btn btn-primary btn-lg">
-                <span className="me-2">✨</span>
-                Crea il tuo primo Quiz
-              </Link>
-            </div>
+            <Link to="/quizzes/create" className="btn btn-primary btn-empty">
+              <span className="btn-icon">✨</span>
+              Crea il tuo primo Quiz
+            </Link>
           )}
         </div>
       </div>
@@ -82,75 +73,70 @@ export default function QuizList() {
   }
 
   return (
-    <div className="container my-3 my-lg-5">
+    <div className="quiz-list-container">
       {/* Header Section */}
-      <div className="row align-items-center mb-4 mb-lg-5">
-        <div className="col-lg-8 mb-3 mb-lg-0">
-          <h1 className="display-5 fw-bold text-primary mb-2">{pageTitle}</h1>
-          <p className="lead text-muted mb-0">
-            {isMyQuizzes 
-              ? "Gestisci e monitora i tuoi quiz creati" 
-              : "Esplora i quiz creati da questo utente"
-            }
-          </p>
-        </div>
-        {isMyQuizzes && (
-          <div className="col-lg-4 text-lg-end">
-            <Link to="/quizzes/create" className="btn btn-primary btn-lg w-100 w-lg-auto">
-              <span className="me-2">✨</span>
+      <div className="quiz-list-header">
+        <div className="header-content">
+          <div className="header-text">
+            <h1 className="page-title">{pageTitle}</h1>
+            <p className="page-subtitle">
+              {isMyQuizzes 
+                ? "Gestisci e monitora i tuoi quiz creati" 
+                : "Esplora i quiz creati da questo utente"
+              }
+            </p>
+          </div>
+          {isMyQuizzes && (
+            <Link to="/quizzes/create" className="btn btn-primary btn-create">
+              <span className="btn-icon">✨</span>
               Crea Nuovo Quiz
             </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Quiz Grid */}
-      <div className="row g-3 g-lg-4">
+      <div className="quiz-grid">
         {quizzes.map((quiz) => (
-          <div key={quiz.id} className="col-12 col-md-6 col-lg-4">
-            <div className="card h-100 border-0 shadow-sm quiz-card">
-              <div className="card-body d-flex flex-column p-3 p-lg-4">
-                {/* Quiz Status Badge */}
-                {quiz.isActive !== undefined && (
-                  <div className="mb-3">
-                    <span
-                      className={`badge rounded-pill px-3 py-2 ${
-                        quiz.isActive ? "bg-success bg-opacity-10 text-success" : "bg-secondary bg-opacity-10 text-secondary"
-                      }`}
-                    >
-                      <span className="me-1">
-                        {quiz.isActive ? "🟢" : "⚫"}
-                      </span>
-                      {quiz.isActive ? "Attivo" : "Inattivo"}
-                    </span>
-                  </div>
-                )}
-
-                {/* Quiz Content */}
-                <h5 className="card-title fw-bold mb-3 text-dark h6">{quiz.title}</h5>
-                <p className="card-text text-muted flex-grow-1 mb-3 mb-lg-4 small">
-                  {quiz.description || "Nessuna descrizione disponibile"}
-                </p>
-
-                {/* Action Buttons */}
-                <div className="mt-auto d-grid gap-2">
-                  <Link to={`/quiz/${quiz.id}`} className="btn btn-primary btn-sm">
-                    <span className="me-2">🎮</span>
-                    Gioca Quiz
-                  </Link>
-                  
-                  {/* Accesso a Classifica e Tentativi per tutti gli utenti */}
-                  <div className="d-grid gap-2">
-                    <Link to={`/leaderboard/${quiz.id}`} className="btn btn-outline-primary btn-sm">
-                      <span className="me-2">🏆</span>
-                      Vedi Classifica
-                    </Link>
-                    <Link to={`/attempts/${quiz.id}`} className="btn btn-outline-info btn-sm">
-                      <span className="me-2">📊</span>
-                      I miei Tentativi
-                    </Link>
-                  </div>
+          <div key={quiz.id} className="quiz-card">
+            <div className="quiz-card-header">
+              {quiz.isActive !== undefined && (
+                <div className={`quiz-status ${quiz.isActive ? 'active' : 'inactive'}`}>
+                  <span className="status-icon">
+                    {quiz.isActive ? "🟢" : "⚫"}
+                  </span>
+                  <span className="status-text">
+                    {quiz.isActive ? "Attivo" : "Inattivo"}
+                  </span>
                 </div>
+              )}
+              <div className="quiz-ai-badge">
+                <span>AI</span>
+              </div>
+            </div>
+
+            <div className="quiz-card-content">
+              <h3 className="quiz-title">{quiz.title}</h3>
+              <p className="quiz-description">
+                {quiz.description || "Nessuna descrizione disponibile"}
+              </p>
+            </div>
+
+            <div className="quiz-card-actions">
+              <Link to={`/quiz/${quiz.id}`} className="btn btn-primary btn-play">
+                <span className="btn-icon">🎮</span>
+                Gioca Quiz
+              </Link>
+              
+              <div className="quiz-secondary-actions">
+                <Link to={`/leaderboard/${quiz.id}`} className="btn btn-outline btn-secondary">
+                  <span className="btn-icon">🏆</span>
+                  Classifica
+                </Link>
+                <Link to={`/attempts/${quiz.id}`} className="btn btn-outline btn-secondary">
+                  <span className="btn-icon">📊</span>
+                  Tentativi
+                </Link>
               </div>
             </div>
           </div>
