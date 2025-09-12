@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+
 
 export default function Navbar({ isLoggedIn, onLogout }) {
   const location = useLocation();
@@ -24,25 +26,25 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
             {/* Navigation Menu for non-authenticated users */}
             <nav className="sidebar-nav">
-              <Link 
-                to="/" 
-                className={`nav-item ${isActive('/') ? 'active' : ''}`}
+              <Link
+                to="/"
+                className={`nav-item ${isActive("/") ? "active" : ""}`}
               >
                 <span className="nav-icon">🏠</span>
                 <span className="nav-text">Home</span>
               </Link>
 
-              <Link 
-                to="/login" 
-                className={`nav-item ${isActive('/login') ? 'active' : ''}`}
+              <Link
+                to="/login"
+                className={`nav-item ${isActive("/login") ? "active" : ""}`}
               >
                 <span className="nav-icon">🔑</span>
                 <span className="nav-text">Accedi</span>
               </Link>
 
-              <Link 
-                to="/register" 
-                className={`nav-item ${isActive('/register') ? 'active' : ''}`}
+              <Link
+                to="/register"
+                className={`nav-item ${isActive("/register") ? "active" : ""}`}
               >
                 <span className="nav-icon">📝</span>
                 <span className="nav-text">Registrati</span>
@@ -53,25 +55,27 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
         {/* Mobile Bottom Navigation */}
         <nav className="sidebar-mobile">
-          <Link 
-            to="/" 
-            className={`mobile-nav-item ${isActive('/') ? 'active' : ''}`}
+          <Link
+            to="/"
+            className={`mobile-nav-item ${isActive("/") ? "active" : ""}`}
           >
             <span className="mobile-nav-icon">🏠</span>
             <span className="mobile-nav-text">Home</span>
           </Link>
 
-          <Link 
-            to="/login" 
-            className={`mobile-nav-item ${isActive('/login') ? 'active' : ''}`}
+          <Link
+            to="/login"
+            className={`mobile-nav-item ${isActive("/login") ? "active" : ""}`}
           >
             <span className="mobile-nav-icon">🔑</span>
             <span className="mobile-nav-text">Accedi</span>
           </Link>
 
-          <Link 
-            to="/register" 
-            className={`mobile-nav-item ${isActive('/register') ? 'active' : ''}`}
+          <Link
+            to="/register"
+            className={`mobile-nav-item ${
+              isActive("/register") ? "active" : ""
+            }`}
           >
             <span className="mobile-nav-icon">📝</span>
             <span className="mobile-nav-text">Registrati</span>
@@ -97,53 +101,56 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
           {/* Navigation Menu */}
           <nav className="sidebar-nav">
-            <Link 
-              to="/" 
-              className={`nav-item ${isActive('/') ? 'active' : ''}`}
+            <Link
+              to="/"
+              className={`nav-item ${isActive("/") ? "active" : ""}`}
             >
               <span className="nav-icon">🏠</span>
               <span className="nav-text">Home</span>
             </Link>
 
-            <Link 
-              to="/quizzes" 
-              className={`nav-item ${isActive('/quizzes') ? 'active' : ''}`}
+            <Link
+              to="/quizzes"
+              className={`nav-item ${isActive("/quizzes") ? "active" : ""}`}
             >
               <span className="nav-icon">📚</span>
               <span className="nav-text">I Miei Quiz</span>
             </Link>
 
-            <Link 
-              to="/quizzes/create" 
-              className={`nav-item ${isActive('/quizzes/create') ? 'active' : ''}`}
+            <Link
+              to="/quizzes/create"
+              className={`nav-item ${
+                isActive("/quizzes/create") ? "active" : ""
+              }`}
             >
               <span className="nav-icon">✨</span>
               <span className="nav-text">Crea Quiz</span>
             </Link>
 
             <div className="nav-dropdown">
-              <button 
-                className={`nav-item dropdown-toggle ${dropdownOpen ? 'active' : ''}`}
+              <button
+                className={`nav-item dropdown-toggle ${
+                  dropdownOpen ? "active" : ""
+                }`}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <span className="nav-icon">👥</span>
                 <span className="nav-text">Amicizie</span>
-                <span className="dropdown-arrow">▼</span>
               </button>
-              
+
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <Link 
-                    to="/friendship/requests" 
-                    className="dropdown-item"
+                  <Link
+                    to="/friendship/requests"
+                    className="nav-item"
                     onClick={() => setDropdownOpen(false)}
                   >
                     <span className="dropdown-icon">📨</span>
                     Richieste
                   </Link>
-                  <Link 
-                    to="/friendship/friends" 
-                    className="dropdown-item"
+                  <Link
+                    to="/friendship/friends"
+                    className="nav-item"
                     onClick={() => setDropdownOpen(false)}
                   >
                     <span className="dropdown-icon">🤝</span>
@@ -153,10 +160,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
               )}
             </div>
 
-            <button 
-              onClick={onLogout} 
-              className="nav-item logout-btn"
-            >
+            <button onClick={onLogout} className="nav-item logout-btn">
               <span className="nav-icon">🚪</span>
               <span className="nav-text">Logout</span>
             </button>
@@ -166,50 +170,52 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
       {/* Mobile Bottom Navigation */}
       <nav className="sidebar-mobile">
-        <Link 
-          to="/" 
-          className={`mobile-nav-item ${isActive('/') ? 'active' : ''}`}
+        <Link
+          to="/"
+          className={`mobile-nav-item ${isActive("/") ? "active" : ""}`}
         >
           <span className="mobile-nav-icon">🏠</span>
           <span className="mobile-nav-text">Home</span>
         </Link>
 
-        <Link 
-          to="/quizzes" 
-          className={`mobile-nav-item ${isActive('/quizzes') ? 'active' : ''}`}
+        <Link
+          to="/quizzes"
+          className={`mobile-nav-item ${isActive("/quizzes") ? "active" : ""}`}
         >
           <span className="mobile-nav-icon">📚</span>
           <span className="mobile-nav-text">Quiz</span>
         </Link>
 
-        <Link 
-          to="/quizzes/create" 
-          className={`mobile-nav-item ${isActive('/quizzes/create') ? 'active' : ''}`}
+        <Link
+          to="/quizzes/create"
+          className={`mobile-nav-item ${
+            isActive("/quizzes/create") ? "active" : ""
+          }`}
         >
           <span className="mobile-nav-icon">✨</span>
           <span className="mobile-nav-text">Crea</span>
         </Link>
 
         <div className="mobile-nav-dropdown">
-          <button 
-            className={`mobile-nav-item ${dropdownOpen ? 'active' : ''}`}
+          <button
+            className={`mobile-nav-item ${dropdownOpen ? "active" : ""}`}
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <span className="mobile-nav-icon">👥</span>
             <span className="mobile-nav-text">Amici</span>
           </button>
-          
+
           {dropdownOpen && (
             <div className="mobile-dropdown-menu">
-              <Link 
-                to="/friendship/requests" 
+              <Link
+                to="/friendship/requests"
                 className="mobile-dropdown-item"
                 onClick={() => setDropdownOpen(false)}
               >
                 📨 Richieste
               </Link>
-              <Link 
-                to="/friendship/friends" 
+              <Link
+                to="/friendship/friends"
                 className="mobile-dropdown-item"
                 onClick={() => setDropdownOpen(false)}
               >
@@ -219,10 +225,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
           )}
         </div>
 
-        <button 
-          onClick={onLogout} 
-          className="mobile-nav-item logout-btn"
-        >
+        <button onClick={onLogout} className="mobile-nav-item logout-btn">
           <span className="mobile-nav-icon">🚪</span>
           <span className="mobile-nav-text">Esci</span>
         </button>
