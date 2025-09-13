@@ -11,5 +11,7 @@ namespace server_web.Model
         public ICollection<Friendship> SentRequests { get; set; } = new HashSet<Friendship>();
         [JsonIgnore]
         public ICollection<Friendship> ReceivedRequests { get; set; } = new HashSet<Friendship>();
+        [JsonIgnore]
+        public ICollection<LikeQuiz> LikedQuizzes { get; set; } = new HashSet<LikeQuiz>();
     }
 }

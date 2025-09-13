@@ -18,10 +18,6 @@ namespace server_web.Model
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        // Indica se il quiz è attivo/pubblicato
-        public bool IsActive { get; set; } = true;
-
         // Relazione con l'utente (creatore del quiz)
         [Required]
         public string UserId { get; set; } = null!;
@@ -37,5 +33,7 @@ namespace server_web.Model
         // Navigazione verso i tentativi di completamento
         [JsonIgnore]
         public ICollection<QuizAttempt> Attempts { get; set; } = new List<QuizAttempt>();
+        [JsonIgnore]
+        public ICollection<LikeQuiz> LikedByUsers { get; set; } = new HashSet<LikeQuiz>();
     }
 }
