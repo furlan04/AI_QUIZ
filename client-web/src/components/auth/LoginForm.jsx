@@ -20,7 +20,7 @@ export default function LoginForm({ setIsLoggedIn }) {
       const result = await login(email, password);
 
       if (result.success && result.token) {
-        localStorage.setItem("jwt", result.token);
+        sessionStorage.setItem("jwt", result.token);
         setToken(result.token);
 
         if (setIsLoggedIn) {
