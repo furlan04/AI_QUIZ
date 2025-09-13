@@ -6,6 +6,7 @@ export * from './AuthService';
 export * from './QuizService';
 export * from './QuizAttemptService';
 export * from './FriendshipService';
+export * from './UserService';
 export * from './CommonService';
 
 // Servizi di utilità

@@ -1,9 +1,9 @@
 // src/services/CommonService.js
 import { getConfig } from '../config/config';
 
-// Utility per ottenere il token JWT dal localStorage
+// Utility per ottenere il token JWT dal sessionStorage
 export const getAuthToken = () => {
-  return localStorage.getItem(getConfig('AUTH_CONFIG.TOKEN_KEY'));
+  return sessionStorage.getItem(getConfig('AUTH_CONFIG.TOKEN_KEY'));
 };
 
 // Utility per verificare se l'utente è autenticato
@@ -14,7 +14,7 @@ export const isAuthenticated = () => {
 
 // Utility per rimuovere il token e fare logout
 export const logout = () => {
-  localStorage.removeItem(getConfig('AUTH_CONFIG.TOKEN_KEY'));
+  sessionStorage.removeItem(getConfig('AUTH_CONFIG.TOKEN_KEY'));
 };
 
 // Utility per gestire gli errori HTTP comuni

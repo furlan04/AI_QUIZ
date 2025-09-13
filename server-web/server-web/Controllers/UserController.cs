@@ -1,0 +1,79 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using server_web.Data;
+using server_web.Model;
+using server_web.Model.Dto;
+
+namespace server_web.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class UserController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UserController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+        [HttpGet("GetProfile")]
+        public async Task<ActionResult<UserProfileDTO>> GetProfile(string? userId = null)
+        {
+            if (userId == null)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized("User not authenticated");
+                userId = user.Id;
+            }
+            var userEntity = await _userManager.FindByIdAsync(userId);
+            if (userEntity == null)
+                return NotFound("User not found");
+            var userQuizzes = await _context.Quizzes
+                .Where(q => q.UserId == userId)
+                .ToListAsync();
+            var friendCountReceived = await _context.Friendships
+                .CountAsync(f => f.ReceiverId == userId && f.Accepted);
+            var friendCountSend = await _context.Friendships
+                .CountAsync(f => f.SenderId == userId && f.Accepted);
+            var profile = new UserProfileDTO
+            {
+                UserId = userId,
+                Email = userEntity.Email!,
+                FriendsCount = friendCountReceived + friendCountSend,
+                Quizzes = userQuizzes
+            };
+            return Ok(profile);
+        }
+        [HttpGet("LoadFeed")]
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetFeed()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not authenticated");
+            var userId = user.Id;
+            var friendIdsReceived = await _context.Friendships
+                .Where(f => f.ReceiverId == userId && f.Accepted)
+                .Select(f => f.SenderId)
+                .ToListAsync();
+            var friendIdsSend = await _context.Friendships
+                .Where(f => f.SenderId == userId && f.Accepted)
+                .Select(f => f.ReceiverId)
+                .ToListAsync();
+            var friendIds = friendIdsReceived.Concat(friendIdsSend).ToList();
+            var recentQuizzes = await _context.Quizzes
+                .Where(q => friendIds.Contains(q.UserId))
+                .OrderByDescending(q => q.CreatedAt)
+                .Take(20)
+                .ToListAsync();
+            return Ok(recentQuizzes);
+        }
+    }
+}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server_web.Data;
 
@@ -11,9 +12,11 @@ using server_web.Data;
 namespace server_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250913102457_added_quiz_removed_completed")]
+    partial class added_quiz_removed_completed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,7 +256,17 @@ namespace server_web.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid?>("QuizId1")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("QuizId", "UserId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("QuizId1");
 
                     b.HasIndex("UserId");
 
@@ -454,16 +467,24 @@ namespace server_web.Migrations
 
             modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
                 {
+                    b.HasOne("server_web.Model.ApplicationUser", null)
+                        .WithMany("LikedQuizzes")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("server_web.Model.Quiz", "Quiz")
-                        .WithMany("LikedByUsers")
+                        .WithMany()
                         .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("server_web.Model.Quiz", null)
+                        .WithMany("LikedByUsers")
+                        .HasForeignKey("QuizId1");
+
                     b.HasOne("server_web.Model.ApplicationUser", "User")
-                        .WithMany("LikedQuizzes")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Quiz");

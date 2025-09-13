@@ -6,8 +6,8 @@
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public bool IsActive { get; set; } = true;
         public string UserId { get; set; } = null!;
+        public int LikesCount { get; set; }
         public ICollection<Question> Questions { get; set; } = new List<Question>();
         public QuizDto(Quiz quiz)
         {
@@ -15,7 +15,7 @@
             Title = quiz.Title;
             Description = quiz.Description;
             CreatedAt = quiz.CreatedAt;
-            IsActive = quiz.IsActive;
+            LikesCount = quiz.LikedByUsers.Count;
             UserId = quiz.UserId;
             Questions = quiz.Questions;
         }

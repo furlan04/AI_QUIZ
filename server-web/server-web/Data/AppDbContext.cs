@@ -16,6 +16,7 @@ namespace server_web.Data
         public DbSet<QuizAttempt> QuizAttempts { get; set; }
         public DbSet<UserAnswer> UserAnswers { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
+        public DbSet<LikeQuiz> LikeQuizzes { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -36,7 +37,6 @@ namespace server_web.Data
 
                 // Indici per performance
                 entity.HasIndex(q => new { q.UserId, q.CreatedAt });
-                entity.HasIndex(q => q.IsActive);
             });
 
             // Configurazione Question
@@ -116,6 +116,12 @@ namespace server_web.Data
                 .WithMany(u => u.ReceivedRequests)
                 .HasForeignKey(f => f.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LikeQuiz>(entity =>
+            {
+                entity.HasKey(q => new { q.QuizId, q.UserId });
+            });
+                
         }
     }
 }

@@ -110,7 +110,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddHttpClient<IQuizService, QuizService>();
 
-
 var app = builder.Build();
 
 // Middleware
@@ -127,5 +126,11 @@ app.UseAuthentication(); // deve stare prima di UseAuthorization
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate(); // Applica automaticamente le migration al DB
+}
 
 app.Run();
