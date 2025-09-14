@@ -18,7 +18,7 @@ import {
   QuizAttempts,
   QuizReview
 } from "./components";
-import "./App.css";
+import "./styles/App.css";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
