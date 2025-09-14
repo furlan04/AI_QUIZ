@@ -16,7 +16,8 @@ import {
   FriendsList,
   Leaderboard,
   QuizAttempts,
-  QuizReview
+  QuizReview,
+  Settings,
 } from "./components";
 import "./styles/App.css";
 
@@ -145,6 +146,15 @@ export default function App() {
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
               <FriendsList />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/settings" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <Settings />
             </ProtectedRoute>
           } 
         />

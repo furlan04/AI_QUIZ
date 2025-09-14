@@ -167,5 +167,16 @@ namespace server_web.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+        [HttpGet("GetAttemptedQuiz")]
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetAttemptedQuizzes()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            var attempts = await _context.QuizAttempts
+                .Where(a => a.UserId == user.Id)
+                .Select(a => a.Quiz)
+                .ToListAsync();
+            return Ok(attempts);
+        }
     }
 }

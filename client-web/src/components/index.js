@@ -23,8 +23,11 @@ export { default as FriendshipRequests } from './friendship/FriendshipRequests';
 export { default as Navbar } from './layout/Navbar';
 export { default as HomePage } from './layout/HomePage';
 
+export { default as Settings } from './user/settings';
+
 // Esportazioni per cartelle specifiche (per import più granulari)
 export * from './auth';
 export * from './quiz';
 export * from './friendship';
 export * from './layout';
+export * from './user';

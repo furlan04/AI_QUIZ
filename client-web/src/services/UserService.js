@@ -10,7 +10,7 @@ const API_URL = getConfig("API_ENDPOINT");
 
 export const getUserProfile = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/User/Profile`, {
+    const response = await fetch(`${API_URL}/User/GetProfile`, {
       method: "GET",
       headers: createAuthHeaders(token),
     });
@@ -23,7 +23,7 @@ export const getUserProfile = async (token) => {
 
 export const getSpecificUserProfile = async (token, userId) => {
   try {
-    const response = await fetch(`${API_URL}/User/Profile?userId=${userId}`, {
+    const response = await fetch(`${API_URL}/User/GetProfile?userId=${userId}`, {
       method: "GET",
       headers: createAuthHeaders(token),
     });
@@ -36,7 +36,20 @@ export const getSpecificUserProfile = async (token, userId) => {
 
 export const getUserFeed = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/User/Feed`, {
+    const response = await fetch(`${API_URL}/User/LoadFeed`, {
+      method: "GET",
+      headers: createAuthHeaders(token),
+    });
+    handleHttpError(response);
+    return await response.json();
+  } catch (error) {
+    return handleNetworkError(error);
+  }
+};
+
+export const getUserSettings = async (token) => {
+  try {
+    const response = await fetch(`${API_URL}/User/GetSettings`, {
       method: "GET",
       headers: createAuthHeaders(token),
     });

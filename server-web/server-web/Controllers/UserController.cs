@@ -75,5 +75,19 @@ namespace server_web.Controllers
                 .ToListAsync();
             return Ok(recentQuizzes);
         }
+        [HttpGet("GetSettings")]
+        public async Task<ActionResult<SettingsDto>> GetSettings()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not authenticated");
+            var settings = new SettingsDto
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                IsEmailConfirmed = user.EmailConfirmed
+            };
+            return Ok(settings);
+        }
     }
 }

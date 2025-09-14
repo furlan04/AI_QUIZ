@@ -160,6 +160,14 @@ export default function Navbar({ isLoggedIn, onLogout }) {
               )}
             </div>
 
+            <Link
+              to="/settings"
+              className={`nav-item`}
+            >
+              <span className="nav-icon">🛠️</span>
+              <span className="nav-text">Impostazioni</span>
+            </Link>
+
             <button onClick={onLogout} className="nav-item logout-btn">
               <span className="nav-icon">🚪</span>
               <span className="nav-text">Logout</span>
@@ -224,6 +232,14 @@ export default function Navbar({ isLoggedIn, onLogout }) {
             </div>
           )}
         </div>
+
+        <Link
+          to="/settings"
+          className={`mobile-nav-item`}
+        >
+          <span className="mobile-nav-icon">🛠️</span>
+          <span className="mobile-nav-text">Impostazioni</span>
+        </Link>
 
         <button onClick={onLogout} className="mobile-nav-item logout-btn">
           <span className="mobile-nav-icon">🚪</span>
