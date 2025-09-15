@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_web.Data;
 using server_web.Model;
-using server_web.Services.Quiz;
+using server_web.Model.Dto;
 
 namespace server_web.Controllers
 {
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class LikeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -15,6 +19,19 @@ namespace server_web.Controllers
         {
             _context = context;
             _userManager = userManager;
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<LikedDto>> GetLikeStatus(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            var isLiked = await _context.LikeQuizzes
+                .Where(l => l.UserId.Equals(user.Id) && l.QuizId.Equals(id))
+                .FirstOrDefaultAsync();
+            return Ok(new LikedDto
+            {
+                IsLiked = isLiked == null ? false : true,
+            });
         }
         [HttpPost("{id}")]
         public async Task<ActionResult<LikeQuiz>> LikeQuiz(Guid id)

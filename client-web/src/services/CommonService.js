@@ -46,6 +46,12 @@ export const createHeaders = () => {
   };
 };
 
+export const createAuthHeadersNoType = (token) => {
+  return {
+    "Authorization": `Bearer ${token}`,
+  };
+};
+
 // Utility per gestire i timeout delle richieste
 export const createFetchWithTimeout = (url, options, timeout = getConfig('HTTP_CONFIG.TIMEOUT')) => {
   const controller = new AbortController();

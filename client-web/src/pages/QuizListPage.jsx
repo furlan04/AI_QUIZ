@@ -10,7 +10,7 @@ export default function QuizListPage() {
   useEffect(() => {
     const buildLocation = () => {
       if (userId) {
-        return `/Quiz/${userId}`;
+        return `/Quiz?userId=${userId}`;
       } else {
         return "/Quiz";
       }

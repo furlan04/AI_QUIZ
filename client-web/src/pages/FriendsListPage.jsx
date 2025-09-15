@@ -247,12 +247,12 @@ export default function FriendsListPage() {
                 
                 <div className="friend-actions">
                   <button
-                    onClick={() => navigate(`/quizzes/${friend.friendId}`)}
+                    onClick={() => navigate(`/profile/${friend.friendId}`)}
                     className="btn btn-primary btn-view-quizzes"
                     disabled={loading}
                   >
-                    <span className="btn-icon">📚</span>
-                    Vedi Quiz
+                    <span className="btn-icon">👤</span>
+                    Vedi Profilo
                   </button>
                   <button
                     onClick={() => removeFriend(friend.friendshipId || friend.id, friend.friendEmail)}
