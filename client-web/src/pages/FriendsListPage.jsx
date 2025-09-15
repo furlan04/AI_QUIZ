@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { getFriendsList, removeFriendship } from "../../services/FriendshipService";
-import { getAuthToken } from "../../services/CommonService";
+import { getFriendsList, removeFriendship } from "../services/FriendshipService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function FriendsList() {
+export default function FriendsListPage() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [confirmDialog, setConfirmDialog] = useState(null);
   const navigate = useNavigate();
 
   const fetchFriends = async () => {
@@ -25,15 +26,23 @@ export default function FriendsList() {
     }
   };
 
-  const removeFriend = async (friendshipId) => {
-    if (!window.confirm("Sei sicuro di voler rimuovere questa amicizia?")) {
-      return;
-    }
+  const removeFriend = async (friendshipId, friendEmail) => {
+    setConfirmDialog({
+      friendshipId,
+      friendEmail,
+      message: `Sei sicuro di voler rimuovere l'amicizia con ${friendEmail}?`
+    });
+  };
+
+  const confirmRemoveFriend = async () => {
+    if (!confirmDialog) return;
 
     setLoading(true);
+    setConfirmDialog(null);
+    
     try {
       const token = getAuthToken();
-      await removeFriendship(friendshipId, token);
+      await removeFriendship(confirmDialog.friendshipId, token);
       setMessage("Amicizia rimossa con successo");
       setMessageType("success");
       fetchFriends();
@@ -44,6 +53,10 @@ export default function FriendsList() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const cancelRemoveFriend = () => {
+    setConfirmDialog(null);
   };
 
   const getInitials = (email) => {
@@ -70,6 +83,86 @@ export default function FriendsList() {
 
   return (
     <div className="friends-list-container">
+      {/* TOAST DI CONFERMA - Posizionato prima di tutto */}
+      {confirmDialog && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #e1e5e9',
+          borderRadius: '8px',
+          padding: '20px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 10000,
+          minWidth: '350px',
+          maxWidth: '400px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '15px',
+            color: '#856404',
+            fontSize: '16px',
+            fontWeight: '500'
+          }}>
+            <span style={{ marginRight: '8px', fontSize: '20px' }}>⚠️</span>
+            Conferma rimozione
+          </div>
+          
+          <div style={{
+            marginBottom: '20px',
+            color: '#333',
+            lineHeight: '1.4'
+          }}>
+            {confirmDialog.message}
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            justifyContent: 'flex-end'
+          }}>
+            <button 
+              onClick={cancelRemoveFriend}
+              style={{
+                padding: '8px 16px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                backgroundColor: '#f8f9fa',
+                color: '#333',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#e9ecef'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+            >
+              Annulla
+            </button>
+            <button 
+              onClick={confirmRemoveFriend}
+              disabled={loading}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: '#dc3545',
+                color: 'white',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                opacity: loading ? 0.6 : 1
+              }}
+              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#c82333')}
+              onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#dc3545')}
+            >
+              {loading ? 'Rimozione...' : 'Rimuovi'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="friends-header">
         <div className="header-content">
           <div className="header-text">
@@ -154,15 +247,15 @@ export default function FriendsList() {
                 
                 <div className="friend-actions">
                   <button
-                    onClick={() => navigate(`/quizzes/${friend.friendId}`)}
+                    onClick={() => navigate(`/profile/${friend.friendId}`)}
                     className="btn btn-primary btn-view-quizzes"
                     disabled={loading}
                   >
-                    <span className="btn-icon">📚</span>
-                    Vedi Quiz
+                    <span className="btn-icon">👤</span>
+                    Vedi Profilo
                   </button>
                   <button
-                    onClick={() => removeFriend(friend.friendshipId || friend.id)}
+                    onClick={() => removeFriend(friend.friendshipId || friend.id, friend.friendEmail)}
                     className="btn btn-outline btn-remove"
                     disabled={loading}
                   >

@@ -36,9 +36,6 @@ namespace server_web.Controllers
             var userEntity = await _userManager.FindByIdAsync(userId);
             if (userEntity == null)
                 return NotFound("User not found");
-            var userQuizzes = await _context.Quizzes
-                .Where(q => q.UserId == userId)
-                .ToListAsync();
             var friendCountReceived = await _context.Friendships
                 .CountAsync(f => f.ReceiverId == userId && f.Accepted);
             var friendCountSend = await _context.Friendships
@@ -48,7 +45,6 @@ namespace server_web.Controllers
                 UserId = userId,
                 Email = userEntity.Email!,
                 FriendsCount = friendCountReceived + friendCountSend,
-                Quizzes = userQuizzes
             };
             return Ok(profile);
         }
@@ -74,6 +70,52 @@ namespace server_web.Controllers
                 .Take(20)
                 .ToListAsync();
             return Ok(recentQuizzes);
+        }
+        [HttpGet("GetSettings")]
+        public async Task<ActionResult<SettingsDto>> GetSettings()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not authenticated");
+            var settings = new SettingsDto
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                IsEmailConfirmed = user.EmailConfirmed
+            };
+            return Ok(settings);
+        }
+        [HttpGet("GetLikedQuizzes")]
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetLikedQuizzes()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            var quizIds = _context.LikeQuizzes
+                .Where(qa => qa.UserId == user.Id)
+                .Select(qa => qa.QuizId)
+                .ToList();
+            var quizzes = new List<Quiz>();
+            foreach (var id in quizIds)
+            {
+                quizzes.Add(await _context.Quizzes.FindAsync(id));
+            }
+            return Ok(quizzes);
+        }
+        [HttpGet("GetAttemptedQuizzes")]
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetAttemptedQuizzes()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            var quizIds = _context.QuizAttempts
+                .Where(qa => qa.UserId == user.Id)
+                .Select(qa => qa.QuizId)
+                .ToList();
+            var quizzes = new List<Quiz>();
+            foreach(var id in quizIds)
+            {
+                quizzes.Add(await _context.Quizzes.FindAsync(id));
+            }
+            return Ok(quizzes);
         }
     }
 }

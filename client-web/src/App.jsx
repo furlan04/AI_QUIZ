@@ -3,22 +3,29 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { isAuthenticated, logout } from "./services";
 import {
-  Navbar,
-  RegisterForm,
-  LoginForm,
-  QuizList,
-  QuizCreateForm,
-  QuizPlay,
+  RegisterPage,
+  LoginPage,
+  QuizCreatePage,
+  QuizPlayPage,
   HomePage,
+  FriendshipRequestsPage,
+  FriendsListPage,
+  LeaderboardPage,
+  QuizAttemptsPage,
+  QuizReviewPage,
+  SettingsPage,
+  FYPage,
+  ProfilePage,
+  QuizListPage,
+  LikedQuizzesPage,
+} from "./pages";
+import {
+  Navbar,
   ProtectedRoute,
   PublicRoute,
-  FriendshipRequests,
-  FriendsList,
-  Leaderboard,
-  QuizAttempts,
-  QuizReview
 } from "./components";
-import "./App.css";
+import "./styles/App.css";
+import AttemptedQuizPage from "./pages/AttemptedQuizzesPage";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -40,7 +47,7 @@ export default function App() {
           element={
             isLoggedIn ? (
               <ProtectedRoute isLoggedIn={isLoggedIn}>
-                <QuizList />
+                <FYPage />
               </ProtectedRoute>
             ) : (
               <HomePage />
@@ -53,7 +60,7 @@ export default function App() {
           path="/register" 
           element={
             <PublicRoute isLoggedIn={isLoggedIn}>
-              <RegisterForm />
+              <RegisterPage />
             </PublicRoute>
           } 
         />
@@ -61,7 +68,7 @@ export default function App() {
           path="/login" 
           element={
             <PublicRoute isLoggedIn={isLoggedIn}>
-              <LoginForm setIsLoggedIn={setIsLoggedIn} />
+              <LoginPage setIsLoggedIn={setIsLoggedIn} />
             </PublicRoute>
           } 
         />
@@ -71,7 +78,7 @@ export default function App() {
           path="/quizzes" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizList />
+              <QuizListPage />
             </ProtectedRoute>
           } 
         />
@@ -80,7 +87,7 @@ export default function App() {
           path="/quizzes/:userId" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizList />
+              <QuizListPage />
             </ProtectedRoute>
           } 
         />
@@ -88,7 +95,7 @@ export default function App() {
           path="/quizzes/create" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizCreateForm />
+              <QuizCreatePage/>
             </ProtectedRoute>
           } 
         />
@@ -96,7 +103,7 @@ export default function App() {
           path="/quiz/:id" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizPlay />
+              <QuizPlayPage />
             </ProtectedRoute>
           } 
         />
@@ -106,7 +113,7 @@ export default function App() {
           path="/leaderboard/:quizId" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <Leaderboard />
+              <LeaderboardPage />
             </ProtectedRoute>
           } 
         />
@@ -116,7 +123,7 @@ export default function App() {
           path="/attempts/:quizId" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizAttempts />
+              <QuizAttemptsPage />
             </ProtectedRoute>
           } 
         />
@@ -126,7 +133,7 @@ export default function App() {
           path="/review/:attemptId" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <QuizReview />
+              <QuizReviewPage />
             </ProtectedRoute>
           } 
         />
@@ -136,7 +143,7 @@ export default function App() {
           path="/friendship/requests" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <FriendshipRequests />
+              <FriendshipRequestsPage />
             </ProtectedRoute>
           } 
         />
@@ -144,7 +151,51 @@ export default function App() {
           path="/friendship/friends" 
           element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <FriendsList />
+              <FriendsListPage />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/settings" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <SettingsPage />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/profile/:userId" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <ProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/profile/" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <ProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/liked-quizzes" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <LikedQuizzesPage />
+            </ProtectedRoute>
+          } 
+        />
+                <Route 
+          path="/attempted-quizzes" 
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <AttemptedQuizPage />
             </ProtectedRoute>
           } 
         />

@@ -13,5 +13,7 @@ namespace server_web.Model
         public ICollection<Friendship> ReceivedRequests { get; set; } = new HashSet<Friendship>();
         [JsonIgnore]
         public ICollection<LikeQuiz> LikedQuizzes { get; set; } = new HashSet<LikeQuiz>();
+        [JsonIgnore]
+        public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
     }
 }

@@ -3,10 +3,10 @@ import {
   getFriendshipRequests, 
   sendFriendshipRequest, 
   acceptFriendshipRequest 
-} from "../../services/FriendshipService";
-import { getAuthToken } from "../../services/CommonService";
+} from "../services/FriendshipService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function FriendshipRequests() {
+export default function FriendshipRequestsPage() {
   const [email, setEmail] = useState("");
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);

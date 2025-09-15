@@ -1,10 +1,10 @@
 // src/components/QuizAttempts.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getMyAttempts } from "../../services/QuizAttemptService";
-import { getAuthToken } from "../../services/CommonService";
+import { getMyAttempts } from "../services/QuizAttemptService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function QuizAttempts() {
+export default function QuizAttemptsPage() {
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

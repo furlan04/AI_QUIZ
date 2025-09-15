@@ -49,6 +49,19 @@ export const getQuizzes = async (token, userId) => {
   }
 };
 
+export const getQuizzesFromLocation = async (token, location) => {
+  try {
+    const response = await fetch(`${API_URL}${location}`, {
+      headers: createAuthHeaders(token)
+    });
+    
+    handleHttpError(response);
+    return await response.json();
+  } catch (error) {
+    return handleNetworkError(error);
+  }
+};
+
 export const getQuizById = async (quizId, token) => {
   try {
     const response = await fetch(`${API_URL}/Quiz/${quizId}`, {
