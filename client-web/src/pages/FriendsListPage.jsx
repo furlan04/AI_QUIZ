@@ -230,19 +230,11 @@ export default function FriendsListPage() {
                       {getInitials(friend.friendEmail)}
                     </span>
                   </div>
-                  <div className="friend-status">
-                    <span className="status-dot"></span>
-                    <span className="status-text">Online</span>
-                  </div>
                 </div>
                 
                 <div className="friend-content">
                   <h3 className="friend-email">{friend.friendEmail}</h3>
-                  {friend.since && (
-                    <p className="friend-since">
-                      Amici dal {new Date(friend.since).toLocaleDateString('it-IT')}
-                    </p>
-                  )}
+                  <p className="friend">{friend.friendsCount}</p>
                 </div>
                 
                 <div className="friend-actions">

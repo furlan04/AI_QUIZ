@@ -110,7 +110,7 @@ namespace server_web.Controllers
                 .Where(qa => qa.UserId == user.Id)
                 .Select(qa => qa.QuizId)
                 .ToList();
-            var quizzes = new List<Quiz>();
+            var quizzes = new HashSet<Quiz>();
             foreach(var id in quizIds)
             {
                 quizzes.Add(await _context.Quizzes.FindAsync(id));

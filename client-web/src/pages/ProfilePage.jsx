@@ -3,15 +3,19 @@ import {
   getUserProfile,
   getSpecificUserProfile,
 } from "../services/UserService";
+import { useParams } from "react-router-dom";
+
 import { getAuthToken } from "../services/CommonService";
 import { useNavigate } from "react-router-dom";
 import "../styles/settings.css";
 
-const ProfilePage = ({ userId }) => {
+const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { userId } = useParams();
+  
 
   const getInitials = (email) => {
     if (!email) return "?";
@@ -100,6 +104,11 @@ const ProfilePage = ({ userId }) => {
                   <span className="setting-icon">📧</span>
                   <span className="setting-text">{profile.email}</span>
                 </div>
+                <label className="setting-label">Numero amici</label>
+                <div className="setting-display">
+                  <span className="setting-icon">👥</span>
+                  <span className="setting-text">{profile.friendsCount}</span>
+                </div>
               </div>
             </div>
 
@@ -112,6 +121,7 @@ const ProfilePage = ({ userId }) => {
                 >
                   Vedi Quiz
                 </button>
+                {/*
                 <button
                   className={`btn btn-action ${
                     profile.friendStatus ? "btn-outline" : "btn-primary"
@@ -121,6 +131,7 @@ const ProfilePage = ({ userId }) => {
                     ? "Rimuovi Amicizia"
                     : "Aggiungi Amicizia"}
                 </button>
+                */}
               </div>
             </div>
           </div>
