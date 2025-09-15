@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../../services/AuthService";
+import { login } from "../services/AuthService";
 
-export default function LoginForm({ setIsLoggedIn }) {
+export default function LoginPage({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(null);
@@ -27,7 +27,7 @@ export default function LoginForm({ setIsLoggedIn }) {
           setIsLoggedIn(true);
         }
 
-        navigate("/quizzes");
+        navigate("/");
       } else {
         setError(result.message || "Errore login");
       }

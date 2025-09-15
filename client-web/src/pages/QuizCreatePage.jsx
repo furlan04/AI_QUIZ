@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { createQuiz } from "../../services/QuizService";
-import { getAuthToken } from "../../services/CommonService";
+import { createQuiz } from "../services/QuizService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function QuizCreateForm() {
+export default function QuizCreatePage() {
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);

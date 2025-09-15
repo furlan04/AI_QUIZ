@@ -1,16 +1,60 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-
 
 export default function Navbar({ isLoggedIn, onLogout }) {
   const location = useLocation();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [friendsDropdownOpen, setFriendsDropdownOpen] = useState(false);
+  const [quizDropdownOpen, setQuizDropdownOpen] = useState(false);
+  const desktopNavRef = useRef(null);
+  const mobileNavRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
 
+  // Effect per chiudere i dropdown quando si clicca fuori
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInsideDesktop = desktopNavRef.current && desktopNavRef.current.contains(event.target);
+      const isClickInsideMobile = mobileNavRef.current && mobileNavRef.current.contains(event.target);
+      
+      if (!isClickInsideDesktop && !isClickInsideMobile) {
+        closeAllDropdowns();
+      }
+    };
+
+    // Aggiungi l'event listener solo se almeno un dropdown è aperto
+    if (quizDropdownOpen || friendsDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    // Cleanup function per rimuovere l'event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [quizDropdownOpen, friendsDropdownOpen]);
+
+  // Funzione per aprire solo un dropdown alla volta
+  const toggleQuizDropdown = () => {
+    setQuizDropdownOpen(!quizDropdownOpen);
+    if (friendsDropdownOpen) {
+      setFriendsDropdownOpen(false);
+    }
+  };
+
+  const toggleFriendsDropdown = () => {
+    setFriendsDropdownOpen(!friendsDropdownOpen);
+    if (quizDropdownOpen) {
+      setQuizDropdownOpen(false);
+    }
+  };
+
+  const closeAllDropdowns = () => {
+    setQuizDropdownOpen(false);
+    setFriendsDropdownOpen(false);
+  };
+
   if (!isLoggedIn) {
-    // Public navbar - now using the same style as authenticated
+    // Public navbar - unchanged
     return (
       <>
         {/* Desktop Navbar */}
@@ -85,11 +129,11 @@ export default function Navbar({ isLoggedIn, onLogout }) {
     );
   }
 
-  // Instagram-like sidebar for authenticated users - unchanged
+  // Authenticated navbar with fixed dropdowns
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="sidebar-desktop">
+      <aside className="sidebar-desktop" ref={desktopNavRef}>
         <div className="sidebar-content">
           {/* Logo */}
           <Link className="sidebar-brand" to="/">
@@ -106,44 +150,74 @@ export default function Navbar({ isLoggedIn, onLogout }) {
               className={`nav-item ${isActive("/") ? "active" : ""}`}
             >
               <span className="nav-icon">🏠</span>
-              <span className="nav-text">Home</span>
+              <span className="nav-text">Per te</span>
             </Link>
 
-            <Link
-              to="/quizzes"
-              className={`nav-item ${isActive("/quizzes") ? "active" : ""}`}
-            >
-              <span className="nav-icon">📚</span>
-              <span className="nav-text">I Miei Quiz</span>
-            </Link>
-
-            <Link
-              to="/quizzes/create"
-              className={`nav-item ${
-                isActive("/quizzes/create") ? "active" : ""
-              }`}
-            >
-              <span className="nav-icon">✨</span>
-              <span className="nav-text">Crea Quiz</span>
-            </Link>
-
+            {/* Quiz Dropdown */}
             <div className="nav-dropdown">
               <button
                 className={`nav-item dropdown-toggle ${
-                  dropdownOpen ? "active" : ""
+                  quizDropdownOpen ? "active" : ""
                 }`}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onClick={toggleQuizDropdown}
+              >
+                <span className="nav-icon">📚</span>
+                <span className="nav-text">Quiz</span>
+              </button>
+
+              {quizDropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link
+                    to="/quizzes"
+                    className="nav-item"
+                    onClick={closeAllDropdowns}
+                  >
+                    I miei Quiz
+                  </Link>
+                  <Link
+                    to="/attempted-quizzes"
+                    className="nav-item"
+                    onClick={closeAllDropdowns}
+                  >
+                    Quiz Provati
+                  </Link>
+                  <Link
+                    to="/liked-quizzes"
+                    className="nav-item"
+                    onClick={closeAllDropdowns}
+                  >
+                    Quiz Piaciuti
+                  </Link>
+                  <Link
+                    to="/quizzes/create"
+                    className="nav-item"
+                    onClick={closeAllDropdowns}
+                  >
+                    <span className="nav-icon">✨</span>
+                    Crea quiz
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Friends Dropdown */}
+            <div className="nav-dropdown">
+              <button
+                className={`nav-item dropdown-toggle ${
+                  friendsDropdownOpen ? "active" : ""
+                }`}
+                onClick={toggleFriendsDropdown}
               >
                 <span className="nav-icon">👥</span>
                 <span className="nav-text">Amicizie</span>
               </button>
 
-              {dropdownOpen && (
+              {friendsDropdownOpen && (
                 <div className="dropdown-menu">
                   <Link
                     to="/friendship/requests"
                     className="nav-item"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={closeAllDropdowns}
                   >
                     <span className="dropdown-icon">📨</span>
                     Richieste
@@ -151,7 +225,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
                   <Link
                     to="/friendship/friends"
                     className="nav-item"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={closeAllDropdowns}
                   >
                     <span className="dropdown-icon">🤝</span>
                     Amici
@@ -162,7 +236,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
             <Link
               to="/settings"
-              className={`nav-item`}
+              className="nav-item"
             >
               <span className="nav-icon">🛠️</span>
               <span className="nav-text">Impostazioni</span>
@@ -177,55 +251,82 @@ export default function Navbar({ isLoggedIn, onLogout }) {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="sidebar-mobile">
+      <nav className="sidebar-mobile" ref={mobileNavRef}>
         <Link
           to="/"
           className={`mobile-nav-item ${isActive("/") ? "active" : ""}`}
         >
           <span className="mobile-nav-icon">🏠</span>
-          <span className="mobile-nav-text">Home</span>
+          <span className="mobile-nav-text">Per te</span>
         </Link>
 
-        <Link
-          to="/quizzes"
-          className={`mobile-nav-item ${isActive("/quizzes") ? "active" : ""}`}
-        >
-          <span className="mobile-nav-icon">📚</span>
-          <span className="mobile-nav-text">Quiz</span>
-        </Link>
-
-        <Link
-          to="/quizzes/create"
-          className={`mobile-nav-item ${
-            isActive("/quizzes/create") ? "active" : ""
-          }`}
-        >
-          <span className="mobile-nav-icon">✨</span>
-          <span className="mobile-nav-text">Crea</span>
-        </Link>
-
+        {/* Mobile Quiz Dropdown */}
         <div className="mobile-nav-dropdown">
           <button
-            className={`mobile-nav-item ${dropdownOpen ? "active" : ""}`}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className={`mobile-nav-item ${quizDropdownOpen ? "active" : ""}`}
+            onClick={toggleQuizDropdown}
+          >
+            <span className="mobile-nav-icon">📚</span>
+            <span className="mobile-nav-text">Quiz</span>
+          </button>
+
+          {quizDropdownOpen && (
+            <div className="mobile-dropdown-menu">
+              <Link
+                to="/quizzes"
+                className="mobile-dropdown-item"
+                onClick={closeAllDropdowns}
+              >
+                I miei Quiz
+              </Link>
+              <Link
+                to="/attempted-quizzes"
+                className="mobile-dropdown-item"
+                onClick={closeAllDropdowns}
+              >
+                Quiz provati
+              </Link>
+              <Link
+                to="/liked-quizzes"
+                className="mobile-dropdown-item"
+                onClick={closeAllDropdowns}
+              >
+                Quiz piaciuti
+              </Link>
+              <Link
+                to="/quizzes/create"
+                className="mobile-dropdown-item"
+                onClick={closeAllDropdowns}
+              >
+                Crea quiz
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Friends Dropdown */}
+        <div className="mobile-nav-dropdown">
+          <button
+            className={`mobile-nav-item ${friendsDropdownOpen ? "active" : ""}`}
+            onClick={toggleFriendsDropdown}
           >
             <span className="mobile-nav-icon">👥</span>
             <span className="mobile-nav-text">Amici</span>
           </button>
 
-          {dropdownOpen && (
+          {friendsDropdownOpen && (
             <div className="mobile-dropdown-menu">
               <Link
                 to="/friendship/requests"
                 className="mobile-dropdown-item"
-                onClick={() => setDropdownOpen(false)}
+                onClick={closeAllDropdowns}
               >
                 📨 Richieste
               </Link>
               <Link
                 to="/friendship/friends"
                 className="mobile-dropdown-item"
-                onClick={() => setDropdownOpen(false)}
+                onClick={closeAllDropdowns}
               >
                 🤝 Amici
               </Link>
@@ -235,7 +336,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
         <Link
           to="/settings"
-          className={`mobile-nav-item`}
+          className="mobile-nav-item"
         >
           <span className="mobile-nav-icon">🛠️</span>
           <span className="mobile-nav-text">Impostazioni</span>

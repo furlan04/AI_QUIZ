@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { getUserSettings } from "../../services/UserService";
-import { getAuthToken } from "../../services/CommonService";
-import "../../styles/settings.css";
+import { getUserSettings } from "../services/UserService";
+import { getAuthToken } from "../services/CommonService";
+import "../styles/settings.css";
 
-export default function Settings() {
+export default function SettingsPage() {
   const [userSettings, setUserSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");

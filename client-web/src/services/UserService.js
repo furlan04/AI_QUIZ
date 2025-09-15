@@ -34,19 +34,6 @@ export const getSpecificUserProfile = async (token, userId) => {
   }
 };
 
-export const getUserFeed = async (token) => {
-  try {
-    const response = await fetch(`${API_URL}/User/LoadFeed`, {
-      method: "GET",
-      headers: createAuthHeaders(token),
-    });
-    handleHttpError(response);
-    return await response.json();
-  } catch (error) {
-    return handleNetworkError(error);
-  }
-};
-
 export const getUserSettings = async (token) => {
   try {
     const response = await fetch(`${API_URL}/User/GetSettings`, {

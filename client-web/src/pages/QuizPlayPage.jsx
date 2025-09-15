@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getQuizById } from "../../services/QuizService";
-import { submitQuizAttempt } from "../../services/QuizAttemptService";
-import { getAuthToken } from "../../services/CommonService";
+import { getQuizById } from "../services/QuizService";
+import { submitQuizAttempt } from "../services/QuizAttemptService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function QuizPlay() {
+export default function QuizPlayPage() {
   const { id } = useParams();
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});

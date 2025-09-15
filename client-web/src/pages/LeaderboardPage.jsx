@@ -1,10 +1,10 @@
 // src/components/Leaderboard.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getLeaderboard } from "../../services/QuizAttemptService";
-import { getAuthToken } from "../../services/CommonService";
+import { getLeaderboard } from "../services/QuizAttemptService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function Leaderboard() {
+export default function LeaderboardPage() {
   const [leaderboardData, setLeaderboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

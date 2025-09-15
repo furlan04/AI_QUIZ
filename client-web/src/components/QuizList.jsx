@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { getMyQuizzes, getQuizzes } from "../../services/QuizService";
-import { getAuthToken } from "../../services/CommonService";
-import { Link, useParams } from "react-router-dom";
+import { getQuizzesFromLocation } from "../services/QuizService";
+import { getAuthToken } from "../services/CommonService";
+import { Link } from "react-router-dom";
 
-export default function QuizList() {
+export default function QuizList( { location } ) {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { userId } = useParams();
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -17,11 +16,7 @@ export default function QuizList() {
         try {
           let quizzesData;
           
-          if (userId) {
-            quizzesData = await getQuizzes(token, userId);
-          } else {
-            quizzesData = await getMyQuizzes(token);
-          }
+          quizzesData = await getQuizzesFromLocation(token, location);
           
           setQuizzes(quizzesData);
         } catch (error) {
@@ -33,10 +28,7 @@ export default function QuizList() {
     };
 
     fetchQuizzes();
-  }, [userId]);
-
-  const isMyQuizzes = !userId;
-  const pageTitle = isMyQuizzes ? "I miei Quiz" : `Quiz dell'utente`;
+  }, [location]);
 
   if (loading) {
     return (
@@ -53,20 +45,9 @@ export default function QuizList() {
     return (
       <div className="quiz-list-container">
         <div className="empty-state">
-          <div className="empty-icon">📚</div>
-          <h2 className="empty-title">{pageTitle}</h2>
           <div className="empty-message">
-            {isMyQuizzes 
-              ? "Non hai ancora creato nessun quiz. Inizia ora!" 
-              : "Questo utente non ha ancora creato nessun quiz."
-            }
+            Non ci sono quiz disponibili
           </div>
-          {isMyQuizzes && (
-            <Link to="/quizzes/create" className="btn btn-primary btn-empty">
-              <span className="btn-icon">✨</span>
-              Crea il tuo primo Quiz
-            </Link>
-          )}
         </div>
       </div>
     );
@@ -74,42 +55,11 @@ export default function QuizList() {
 
   return (
     <div className="quiz-list-container">
-      {/* Header Section */}
-      <div className="quiz-list-header">
-        <div className="header-content">
-          <div className="header-text">
-            <h1 className="page-title">{pageTitle}</h1>
-            <p className="page-subtitle">
-              {isMyQuizzes 
-                ? "Gestisci e monitora i tuoi quiz creati" 
-                : "Esplora i quiz creati da questo utente"
-              }
-            </p>
-          </div>
-          {isMyQuizzes && (
-            <Link to="/quizzes/create" className="btn btn-primary btn-create">
-              <span className="btn-icon">✨</span>
-              Crea Nuovo Quiz
-            </Link>
-          )}
-        </div>
-      </div>
-
       {/* Quiz Grid */}
       <div className="quiz-grid">
         {quizzes.map((quiz) => (
           <div key={quiz.id} className="quiz-card">
             <div className="quiz-card-header">
-              {quiz.isActive !== undefined && (
-                <div className={`quiz-status ${quiz.isActive ? 'active' : 'inactive'}`}>
-                  <span className="status-icon">
-                    {quiz.isActive ? "🟢" : "⚫"}
-                  </span>
-                  <span className="status-text">
-                    {quiz.isActive ? "Attivo" : "Inattivo"}
-                  </span>
-                </div>
-              )}
               <div className="quiz-ai-badge">
                 <span>AI</span>
               </div>
@@ -126,6 +76,11 @@ export default function QuizList() {
               <Link to={`/quiz/${quiz.id}`} className="btn btn-primary btn-play">
                 <span className="btn-icon">🎮</span>
                 Gioca Quiz
+              </Link>
+
+              <Link to={`/profile/${quiz.userId}`} className="btn btn-primary btn-primary-outline">
+                <span className="btn-icon">👤</span>
+                Vedi Profilo Creatore
               </Link>
               
               <div className="quiz-secondary-actions">

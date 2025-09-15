@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { getFriendsList, removeFriendship } from "../../services/FriendshipService";
-import { getAuthToken } from "../../services/CommonService";
+import { getFriendsList, removeFriendship } from "../services/FriendshipService";
+import { getAuthToken } from "../services/CommonService";
 
-export default function FriendsList() {
+export default function FriendsListPage() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
