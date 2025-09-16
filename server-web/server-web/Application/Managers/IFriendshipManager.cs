@@ -5,10 +5,10 @@ namespace server_web.Application.Managers
 {
     public interface IFriendshipManager
     {
-        IEnumerable<FriendRequestDto> UserRequests(string userId);
-        Friendship SendRequests(string senderId, string receiverId);
-        Friendship AcceptRequest(string userId, Guid requestId);
-        IEnumerable<FriendDto> UserFriends(string userId);
-        void RemoveFriend(string userId, Guid friendshipId);
+        Task<IEnumerable<FriendRequestDto>> UserRequestsAsync(string userId);
+        Task<Friendship> SendRequestsAsync(string senderId, string receiverId);
+        Task<Friendship> AcceptRequestAsync(string userId, Guid requestId);
+        Task<IEnumerable<FriendDto>> UserFriendsAsync(string userId);
+        Task RemoveFriendAsync(string userId, Guid friendshipId);
     }
 }

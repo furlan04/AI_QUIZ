@@ -26,9 +26,10 @@ namespace server_web.Controllers
         public async Task<ActionResult<IEnumerable<FriendRequestDto>>> MyRequests()
         {
             var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null) return BadRequest("not logged in");
+            if (current_user == null) 
+                return BadRequest("not logged in");
 
-            var received = _friendshipManager.UserRequests(current_user.Id);
+            var received = await _friendshipManager.UserRequestsAsync(current_user.Id);
 
             return Ok(received);
         }
@@ -37,13 +38,13 @@ namespace server_web.Controllers
         {
             var current_user = await _userManager.GetUserAsync(User);
             if (current_user == null) 
-                return BadRequest("not logged in");
+                return Unauthorized("not logged in");
 
             var requested_user = await _userManager.FindByEmailAsync(email);
             if (requested_user == null) 
                 return BadRequest("user does not exist");
 
-            var friendship = _friendshipManager.SendRequests(current_user.Id, requested_user.Id);
+            var friendship = await _friendshipManager.SendRequestsAsync(current_user.Id, requested_user.Id);
 
             return Ok(friendship);
         }
@@ -51,10 +52,10 @@ namespace server_web.Controllers
         public async Task<ActionResult<Friendship>> AcceptRequest(Guid friendshipId)
         {
             var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null) return BadRequest("not logged in");
+            if (current_user == null) return Unauthorized("not logged in");
             try
             {
-                var request = _friendshipManager.AcceptRequest(current_user.Id, friendshipId);
+                var request = await _friendshipManager.AcceptRequestAsync(current_user.Id, friendshipId);
                 return Ok(request);
             }
             catch (Exception)
@@ -69,22 +70,22 @@ namespace server_web.Controllers
             var current_user = await _userManager.GetUserAsync(User);
 
             if (current_user == null) 
-                return BadRequest("not logged in");
+                return Unauthorized("not logged in");
 
-            var friendships = _friendshipManager.UserFriends(current_user.Id);
+            var friendships = await _friendshipManager.UserFriendsAsync(current_user.Id);
 
             return Ok(friendships);
         }
 
         [HttpDelete("remove-friendship/{friendshipId}")]
-        public async Task<ActionResult> RemoveFrienship(Guid friendshipId)
+        public async Task<ActionResult> RemoveFriendship(Guid friendshipId)
         {
             var current_user = await _userManager.GetUserAsync(User);
 
             if (current_user == null) 
-                return BadRequest("not logged in");
+                return Unauthorized("not logged in");
 
-            _friendshipManager.RemoveFriend(current_user.Id, friendshipId);
+            await _friendshipManager.RemoveFriendAsync(current_user.Id, friendshipId);
 
             return NoContent();
         }

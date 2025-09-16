@@ -12,43 +12,41 @@ namespace server_web.Application.Managers
         {
             _unitOfWork = unitOfWork;
         }
-        public IEnumerable<FriendRequestDto> UserRequests(string userId)
+        public async Task<IEnumerable<FriendRequestDto>> UserRequestsAsync(string userId)
         {
-            var requests = _unitOfWork.Friendship
-                .GetAll("SendingUser")
-                .Where(f => f.ReceiverId == userId && !f.Accepted);
+            var requests = await _unitOfWork.Friendship
+                .GetAllAsync(f => f.ReceiverId == userId && !f.Accepted, "SendingUser");
             return requests.Select(fr => new FriendRequestDto(fr.Id, fr.SendingUser.Email!));
         }
-        public Friendship SendRequests(string senderId, string receiverId)
+        public async Task<Friendship> SendRequestsAsync(string senderId, string receiverId)
         {
-            var exists = _unitOfWork.Friendship
-                .GetFirstOrDefault(f => f.SenderId == senderId && f.ReceiverId == receiverId);
+            var exists = await _unitOfWork.Friendship
+                .GetFirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == receiverId);
             if (exists != null) 
                 throw new Exception("Richiesta già inviata");
-            var exists_reverse = _unitOfWork.Friendship
-                .GetFirstOrDefault(f => f.ReceiverId == senderId && f.SenderId == receiverId);
+            var exists_reverse = await _unitOfWork.Friendship
+                .GetFirstOrDefaultAsync(f => f.ReceiverId == senderId && f.SenderId == receiverId);
             if (exists_reverse != null) 
-                return AcceptRequest(senderId, exists_reverse.Id);
+                return await AcceptRequestAsync(senderId, exists_reverse.Id);
             Friendship friendship = new Friendship(senderId, receiverId);
-            _unitOfWork.Friendship.Add(friendship);
-            _unitOfWork.Save();
+            await _unitOfWork.Friendship.AddAsync(friendship);
+            await _unitOfWork.SaveAsync();
             return friendship;
         }
-        public Friendship AcceptRequest(string userId, Guid requestId)
+        public async Task<Friendship> AcceptRequestAsync(string userId, Guid requestId)
         {
-            var request = _unitOfWork.Friendship
-                .GetFirstOrDefault(f => f.Id == requestId && f.ReceiverId == userId);
+            var request = await _unitOfWork.Friendship
+                .GetFirstOrDefaultAsync(f => f.Id == requestId && f.ReceiverId == userId);
             if (request == null) throw new KeyNotFoundException("Richiesta non trovata");
             request.Accepted = true;
             _unitOfWork.Friendship.Update(request);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             return request;
         }
-        public IEnumerable<FriendDto> UserFriends(string userId)
+        public async Task<IEnumerable<FriendDto>> UserFriendsAsync(string userId)
         {
-            var friends = _unitOfWork.Friendship
-                .GetAll("ReceivingUser,SendingUser")
-                .Where(f => (f.SenderId == userId || f.ReceiverId == userId) && f.Accepted);
+            var friends = await _unitOfWork.Friendship
+                .GetAllAsync(f => (f.SenderId == userId || f.ReceiverId == userId) && f.Accepted, "ReceivingUser,SendingUser");
             return friends.Select(f => new FriendDto
             {
                 FriendshipId = f.Id,
@@ -56,13 +54,13 @@ namespace server_web.Application.Managers
                 FriendEmail = f.SenderId == userId ? f.ReceivingUser.Email! : f.SendingUser.Email!
             });
         }
-        public void RemoveFriend(string userId, Guid friendshipId)
+        public async Task RemoveFriendAsync(string userId, Guid friendshipId)
         {
-            var friendship = _unitOfWork.Friendship
-                .GetFirstOrDefault(f => f.Id == friendshipId && (f.SenderId == userId || f.ReceiverId == userId));
+            var friendship = await _unitOfWork.Friendship
+                .GetFirstOrDefaultAsync(f => f.Id == friendshipId && (f.SenderId == userId || f.ReceiverId == userId));
             if (friendship == null) throw new KeyNotFoundException("Amicizia non trovata");
             _unitOfWork.Friendship.Remove(friendship);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
         }
     }
 }

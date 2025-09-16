@@ -9,6 +9,6 @@
         public IQuestionRepository Question { get; }
         public IUserAnswerRepository UserAnswer { get; }
         public IApplicationUserRepository ApplicationUser { get; }
-        public void Save();
+        public Task SaveAsync();
     }
 }

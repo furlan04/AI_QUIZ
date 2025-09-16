@@ -5,9 +5,9 @@ namespace server_web.Application.Managers
 {
     public interface IQuizManager
     {
-        public IEnumerable<Quiz> GetQuizzes(string? userId = null);
-        public QuizDto? GetQuiz(Guid id);
-        public Task<Quiz> CreateQuiz(string topic, string userId);
-        public Quiz? DeleteQuiz(Guid id, string userId);
+        public Task<IEnumerable<Quiz>> GetQuizzesAsync(string? userId);
+        public Task<QuizDto?> GetQuizAsync(Guid id);
+        public Task<Quiz> CreateQuizAsync(string topic, string userId);
+        public Task<Quiz?> DeleteQuizAsync(Guid id, string userId);
     }
 }

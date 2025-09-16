@@ -16,11 +16,11 @@ namespace server_web.Data.Repository
             _db = db;
             this.dbSet = _db.Set<T>();
         }
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-            dbSet.Add(entity);
+            await dbSet.AddAsync(entity);
         }
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
             if (includeProperties != null)
@@ -30,10 +30,23 @@ namespace server_web.Data.Repository
                     query = query.Include(includeProp);
                 }
             }
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet.Where(filter);
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            return await query.ToListAsync();
+        }
+
+        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
 
@@ -45,7 +58,7 @@ namespace server_web.Data.Repository
                     query = query.Include(includeProp);
                 }
             }
-            return query.FirstOrDefault()!;
+            return (await query.FirstOrDefaultAsync())!;
         }
 
         public void Remove(T entity)

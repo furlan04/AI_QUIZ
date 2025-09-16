@@ -35,7 +35,7 @@ namespace server_web.Controllers
                     return Unauthorized("User not authenticated");
                 userId = user.Id;
             }
-            var quizzes = _quizManager.GetQuizzes(userId);
+            var quizzes = await _quizManager.GetQuizzesAsync(userId);
             return Ok(quizzes);
         }
 
@@ -46,7 +46,7 @@ namespace server_web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) 
                 return Unauthorized();
-            var quiz = _quizManager.GetQuiz(id);
+            var quiz = await _quizManager.GetQuizAsync(id);
             if (quiz == null) 
                 return NotFound();
             return Ok(quiz);
@@ -59,7 +59,7 @@ namespace server_web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if(user == null) 
                 return Unauthorized();
-            var quiz = await _quizManager.CreateQuiz(topic, user.Id);
+            var quiz = await _quizManager.CreateQuizAsync(topic, user.Id);
             return CreatedAtAction(nameof(GetQuiz), new { id = quiz.Id }, quiz);
         }
 
@@ -72,7 +72,7 @@ namespace server_web.Controllers
                 return Unauthorized();
             try
             {
-                _quizManager.DeleteQuiz(id, user.Id);
+                await _quizManager.DeleteQuizAsync(id, user.Id);
                 return NoContent();
             }
             catch (Exception)

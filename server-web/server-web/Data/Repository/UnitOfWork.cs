@@ -23,9 +23,9 @@ namespace server_web.Data.Repository
         public IQuestionRepository Question { get; private set; }
         public IUserAnswerRepository UserAnswer { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; }
-        public void Save()
+        public async Task SaveAsync()
         {
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
     }
 }

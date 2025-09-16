@@ -17,19 +17,17 @@ namespace server_web.Application.Managers
             _unitOfWork = unitOfWork;
             _quizService = quizService;
         }
-        public IEnumerable<Quiz> GetQuizzes(string userId)
+        public async Task<IEnumerable<Quiz>> GetQuizzesAsync(string? userId)
         {
-            return _unitOfWork.Quiz
-                .GetAll()
-                .Where(q => q.UserId == userId)
-                .ToList();
+            return await _unitOfWork.Quiz
+                .GetAllAsync(q => q.UserId == userId);
         }
-        public QuizDto GetQuiz(Guid id)
+        public async Task<QuizDto?> GetQuizAsync(Guid id)
         {
-            var quiz = _unitOfWork.Quiz.GetQuizWithQuestions(id);
+            var quiz = await _unitOfWork.Quiz.GetQuizWithQuestions(id);
             return new QuizDto(quiz);
         }
-        public async Task<Quiz> CreateQuiz(string topic, string userId)
+        public async Task<Quiz> CreateQuizAsync(string topic, string userId)
         {
             var generated_quiz = await _quizService.GenerateQuizAsync(topic);
 
@@ -40,7 +38,7 @@ namespace server_web.Application.Managers
                 UserId = userId,
             };
 
-            _unitOfWork.Quiz.Add(quiz);
+            await _unitOfWork.Quiz.AddAsync(quiz);
 
             foreach (var q in generated_quiz.Questions)
             {
@@ -52,21 +50,21 @@ namespace server_web.Application.Managers
                     CorrectAnswerIndex = q.CorrectAnswerIndex,
                     Order = q.Order,
                 };
-                _unitOfWork.Question.Add(question);
+                await _unitOfWork.Question.AddAsync(question);
             }
 
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             return quiz;
         }
-        public Quiz? DeleteQuiz(Guid id, string userId)
+        public async Task<Quiz?> DeleteQuizAsync(Guid id, string userId)
         {
-            var quiz = _unitOfWork.Quiz.GetFirstOrDefault(q => q.Id == id && q.UserId == userId);
+            var quiz = await _unitOfWork.Quiz.GetFirstOrDefaultAsync(q => q.Id == id && q.UserId == userId);
             if (quiz == null)
             {
                 throw new KeyNotFoundException("Quiz not found");
             }
             _unitOfWork.Quiz.Remove(quiz);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             return quiz;
         }
     }

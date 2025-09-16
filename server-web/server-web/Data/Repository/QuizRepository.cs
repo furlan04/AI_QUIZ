@@ -15,11 +15,11 @@ namespace server_web.Data.Repository
         {
             _db.Update(entity);
         }
-        public Quiz GetQuizWithQuestions(Guid id)
+        public async Task<Quiz> GetQuizWithQuestions(Guid id)
         {
-            return _db.Quizzes
+            return (await _db.Quizzes
                 .Include(q => q.Questions)
-                .FirstOrDefault(q => q.Id == id)!;
+                .FirstOrDefaultAsync(q => q.Id == id))!;
         }
     }
 }
