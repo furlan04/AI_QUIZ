@@ -5,5 +5,6 @@ namespace server_web.Data.Repository.IRepository
     public interface IQuizRepository : IRepository<Quiz>
     {
         void Update(Quiz entity);
+        Quiz GetQuizWithQuestions(Guid id);
     }
 }

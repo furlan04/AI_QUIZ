@@ -112,6 +112,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IQuizManager, QuizManager>();
+builder.Services.AddScoped<IFriendshipManager, FriendshipManager>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddHttpClient<IQuizService, QuizService>();
 

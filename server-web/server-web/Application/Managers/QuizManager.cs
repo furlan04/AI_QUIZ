@@ -2,6 +2,7 @@
 using server_web.Application.ExternalServices.Quiz;
 using server_web.Data.Repository.IRepository;
 using server_web.Model;
+using server_web.Model.Dto;
 using System.Text.Json;
 
 namespace server_web.Application.Managers
@@ -16,26 +17,17 @@ namespace server_web.Application.Managers
             _unitOfWork = unitOfWork;
             _quizService = quizService;
         }
-        // Add business logic methods here that use _unitOfWork to interact with repositories
         public IEnumerable<Quiz> GetQuizzes(string userId)
         {
-            var quizzes = _unitOfWork.Quiz
+            return _unitOfWork.Quiz
                 .GetAll()
                 .Where(q => q.UserId == userId)
                 .ToList();
-            return quizzes;
         }
-        public Quiz GetQuiz(Guid id)
+        public QuizDto GetQuiz(Guid id)
         {
-            var quiz = _unitOfWork.Quiz
-                .GetFirstOrDefault(q => q.Id == id);
-            var questions = _unitOfWork.Question
-                .GetAll()
-                .Where(q => q.QuizId == id)
-                .OrderBy(q => q.Order)
-                .ToList();
-            quiz.Questions = questions;
-            return quiz;
+            var quiz = _unitOfWork.Quiz.GetQuizWithQuestions(id);
+            return new QuizDto(quiz);
         }
         public async Task<Quiz> CreateQuiz(string topic, string userId)
         {
