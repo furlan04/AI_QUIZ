@@ -18,7 +18,7 @@ namespace server_web.Controllers
     {
         private readonly IQuizManager _quizManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IQuizManager quizManager)
+        public QuizController(UserManager<ApplicationUser> userManager, IQuizManager quizManager)
         {
             _userManager = userManager;
             _quizManager = quizManager;

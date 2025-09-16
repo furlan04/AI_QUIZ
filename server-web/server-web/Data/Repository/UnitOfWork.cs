@@ -14,7 +14,6 @@ namespace server_web.Data.Repository
             UserAnswer = new UserAnswerRepository(_db);
             Friendship = new FriendshipRepository(_db);
             LikeQuiz = new LikeQuizRepository(_db);
-            ApplicationUser = new ApplicationUserRepository(_db);
         }
         public IFriendshipRepository Friendship { get; private set; }
         public ILikeQuizRepository LikeQuiz { get; private set; }
@@ -22,7 +21,6 @@ namespace server_web.Data.Repository
         public IQuizRepository Quiz { get; private set; }
         public IQuestionRepository Question { get; private set; }
         public IUserAnswerRepository UserAnswer { get; private set; }
-        public IApplicationUserRepository ApplicationUser { get; private set; }
         public async Task SaveAsync()
         {
             await _db.SaveChangesAsync();

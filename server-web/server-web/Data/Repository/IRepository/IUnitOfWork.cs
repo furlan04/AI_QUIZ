@@ -8,7 +8,6 @@
         public IQuizRepository Quiz { get; }
         public IQuestionRepository Question { get; }
         public IUserAnswerRepository UserAnswer { get; }
-        public IApplicationUserRepository ApplicationUser { get; }
         public Task SaveAsync();
     }
 }
