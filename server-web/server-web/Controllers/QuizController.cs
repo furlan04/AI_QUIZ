@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using server_web.Data;
 using server_web.Model;
 using server_web.Model.Dto;
-using server_web.Services.Quiz;
+using server_web.Application.ExternalServices.Quiz;
 using System.Text.Json;
+using server_web.Application.Managers;
 
 namespace server_web.Controllers
 {
@@ -15,15 +16,12 @@ namespace server_web.Controllers
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IQuizManager _quizManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IQuizService _quizService;
-
-        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IQuizService quizService)
+        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IQuizManager quizManager)
         {
-            _context = context;
             _userManager = userManager;
-            _quizService = quizService;
+            _quizManager = quizManager;
         }
         // GET: api/Quiz
         [AllowAnonymous]
@@ -37,11 +35,7 @@ namespace server_web.Controllers
                     return Unauthorized("User not authenticated");
                 userId = user.Id;
             }
-
-            var quizzes = await _context.Quizzes
-                .Where(q => q.UserId == userId)
-                .ToListAsync();
-
+            var quizzes = _quizManager.GetQuizzes(userId);
             return Ok(quizzes);
         }
 
@@ -50,18 +44,12 @@ namespace server_web.Controllers
         public async Task<ActionResult<Quiz>> GetQuiz(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return Unauthorized();
-
-            var quiz = await _context.Quizzes
-                .Include(q => q.Questions)
-                .FirstOrDefaultAsync(q => q.Id == id);
-
-            if (quiz == null) return NotFound();
-
-            var return_obj = new QuizDto(quiz);
-
-            return Ok(return_obj);
+            if (user == null) 
+                return Unauthorized();
+            var quiz = _quizManager.GetQuiz(id);
+            if (quiz == null) 
+                return NotFound();
+            return Ok(quiz);
         }
 
         // POST: api/Quiz
@@ -69,35 +57,9 @@ namespace server_web.Controllers
         public async Task<ActionResult<Quiz>> CreateQuiz(string topic)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if(user == null) return Unauthorized();
-
-            var generated_quiz = await _quizService.GenerateQuizAsync(topic);
-
-            var quiz = new Quiz
-            {
-                Title = generated_quiz.Title,
-                Description = generated_quiz.Description,
-                UserId = user.Id,
-            };
-
-            _context.Quizzes.Add(quiz);
-
-            foreach (var q in generated_quiz.Questions)
-            {
-                var question = new Question
-                {
-                    QuizId = quiz.Id,
-                    OptionsJson = JsonSerializer.Serialize(q.Options),
-                    Text = q.Text,
-                    CorrectAnswerIndex = q.CorrectAnswerIndex,
-                    Order = q.Order,
-                };
-                _context.Questions.Add(question);
-            }
-
-            await _context.SaveChangesAsync();
-
+            if(user == null) 
+                return Unauthorized();
+            var quiz = await _quizManager.CreateQuiz(topic, user.Id);
             return CreatedAtAction(nameof(GetQuiz), new { id = quiz.Id }, quiz);
         }
 
@@ -106,18 +68,17 @@ namespace server_web.Controllers
         public async Task<IActionResult> DeleteQuiz(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return Unauthorized();
-
-            var quiz = await _context.Quizzes
-                .FirstOrDefaultAsync(q => q.Id == id && q.UserId == user.Id);
-
-            if (quiz == null) return NotFound();
-
-            _context.Quizzes.Remove(quiz);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            if (user == null) 
+                return Unauthorized();
+            try
+            {
+                _quizManager.DeleteQuiz(id, user.Id);
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
         }
     }
 }

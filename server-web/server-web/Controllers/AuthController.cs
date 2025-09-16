@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using server_web.Model;
 using server_web.Model.Dto;
-using server_web.Services.Email;
+using server_web.Application.ExternalServices.Email;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

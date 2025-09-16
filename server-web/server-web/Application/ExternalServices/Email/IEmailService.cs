@@ -1,4 +1,4 @@
-﻿namespace server_web.Services.Email
+﻿namespace server_web.Application.ExternalServices.Email
 {
     public interface IEmailService
     {

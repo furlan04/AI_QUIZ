@@ -1,4 +1,4 @@
-﻿namespace server_web.Services.Settings
+﻿namespace server_web.Application.Settings
 {
     public class JwtSettings
     {

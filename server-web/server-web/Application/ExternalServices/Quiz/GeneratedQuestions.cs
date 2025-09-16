@@ -1,4 +1,4 @@
-﻿namespace server_web.Services.Quiz
+﻿namespace server_web.Application.ExternalServices.Quiz
 {
     public class GeneratedQuestions
     {
