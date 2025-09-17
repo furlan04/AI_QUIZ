@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server_web.Application.Managers;
 using server_web.Data;
 using server_web.Model;
 using server_web.Model.Dto;
@@ -14,244 +15,87 @@ namespace server_web.Controllers
     [Authorize]
     public class QuizAttemptController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IQuizAttemptManager _quizAttemptManager;
 
         public QuizAttemptController(
-            ApplicationDbContext context,
+            IQuizAttemptManager quizAttemptManager,
             UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _quizAttemptManager = quizAttemptManager;
             _userManager = userManager;
         }
-
-        private string GetCurrentUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? throw new UnauthorizedAccessException("User not found");
-        }
-
-        /// <summary>
-        /// Invia le risposte per un quiz e calcola il punteggio
-        /// </summary>
         [HttpPost("submit")]
         public async Task<ActionResult<QuizAttemptResultDto>> SubmitQuizAnswers([FromBody] SubmitQuizAnswersDto dto)
         {
-            var userId = GetCurrentUserId();
-
-            // Verifica che il quiz esista
-            var quiz = await _context.Quizzes
-                .Include(q => q.Questions)
-                .FirstOrDefaultAsync(q => q.Id == dto.QuizId);
-
-            if (quiz == null)
+            try
             {
-                return NotFound($"Quiz with ID {dto.QuizId} not found");
+                var user = await _userManager.GetUserAsync(User);
+                var result = await _quizAttemptManager.SubmitQuizAnswersAsync(dto, user!.Id);
+                return Ok(result);
             }
-
-            // Verifica che tutte le domande esistano
-            var existingQuestions = await _context.Questions
-                .Where(q => q.QuizId == dto.QuizId)
-                .ToListAsync();
-
-            // Verifica che tutte le domande richieste esistano
-            var requestedOrders = dto.Answers.Select(a => a.QuestionOrder).ToList();
-            var existingOrders = existingQuestions.Select(q => q.Order).ToList();
-
-            if (existingQuestions.Count != dto.Answers.Count)
+            catch (KeyNotFoundException knfEx)
             {
-                return BadRequest("Some questions were not found or invalid");
+                return NotFound(knfEx.Message);
             }
-
-            if (existingQuestions.Count != dto.Answers.Count)
+            catch (ArgumentException argEx)
             {
-                return BadRequest("Some questions were not found or invalid");
+                return BadRequest(argEx.Message);
             }
-
-            // Crea il tentativo
-            var attempt = new QuizAttempt
+            catch (Exception ex)
             {
-                QuizId = dto.QuizId,
-                UserId = userId,
-                CompletedAt = DateTime.UtcNow
-            };
-
-            _context.QuizAttempts.Add(attempt);
-            await _context.SaveChangesAsync();
-
-            // Crea le risposte dell'utente
-            var userAnswers = new List<UserAnswer>();
-            var correctAnswers = 0;
-
-            foreach (var answerDto in dto.Answers)
-            {
-                var question = existingQuestions.FirstOrDefault(q =>
-                    q.QuizId == answerDto.QuestionQuizId &&
-                    q.Order == answerDto.QuestionOrder);
-
-                if (question == null)
-                {
-                    return BadRequest($"Question with order {answerDto.QuestionOrder} not found");
-                }
-
-                var userAnswer = new UserAnswer
-                {
-                    QuizAttemptId = attempt.Id,
-                    QuestionQuizId = answerDto.QuestionQuizId,
-                    QuestionOrder = answerDto.QuestionOrder,
-                    SelectedAnswerIndex = answerDto.SelectedAnswerIndex
-                };
-
-                // Verifica se la risposta è corretta
-                if (answerDto.SelectedAnswerIndex == question.CorrectAnswerIndex)
-                {
-                    correctAnswers++;
-                }
-
-                userAnswers.Add(userAnswer);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            // Calcola punteggio e percentuale
-            var totalQuestions = dto.Answers.Count;
-            var score = correctAnswers;
-            var percentage = totalQuestions > 0 ? Math.Round((decimal)correctAnswers / totalQuestions * 100, 2) : 0;
-
-            attempt.Score = score;
-            attempt.Percentage = percentage;
-
-            _context.UserAnswers.AddRange(userAnswers);
-            await _context.SaveChangesAsync();
-
-            return Ok(new QuizAttemptResultDto
-            {
-                Id = attempt.Id,
-                QuizId = quiz.Id,
-                CompletedAt = attempt.CompletedAt ?? DateTime.UtcNow,
-                Score = score,
-                Percentage = percentage,
-                TotalQuestions = totalQuestions
-            });
         }
-
-        /// <summary>
-        /// Ottiene i dettagli di revisione per un tentativo di quiz
-        /// </summary>
         [HttpGet("{attemptId}/review")]
         public async Task<ActionResult<QuizAttemptReviewDto>> GetQuizAttemptReview(Guid attemptId)
         {
-            var userId = GetCurrentUserId();
-
-            var attempt = await _context.QuizAttempts
-                .Include(a => a.UserAnswers)
-                    .ThenInclude(ua => ua.Question)
-                .FirstOrDefaultAsync(a => a.Id == attemptId && a.UserId == userId);
-
-            if (attempt == null)
+            try
             {
-                return NotFound($"Quiz attempt with ID {attemptId} not found or not accessible");
+                var userId = await _userManager.GetUserAsync(User);
+                var reviewDto = await _quizAttemptManager.GetQuizAttemptReviewAsync(attemptId, userId!.Id);
+                return Ok(reviewDto);
             }
-
-            var questions = attempt.UserAnswers
-                .OrderBy(ua => ua.QuestionOrder)
-                .Select(ua => new QuestionReviewDto
-                {
-                    QuestionQuizId = ua.QuestionQuizId,
-                    QuestionOrder = ua.QuestionOrder,
-                    QuestionText = ua.Question.Text,
-                    Options = ua.Question.Options,
-                    SelectedAnswerIndex = ua.SelectedAnswerIndex,
-                    CorrectAnswerIndex = ua.Question.CorrectAnswerIndex,
-                    IsCorrect = ua.IsCorrect
-                })
-                .ToList();
-
-            var reviewDto = new QuizAttemptReviewDto
+            catch (KeyNotFoundException knfEx)
             {
-                Id = attempt.Id,
-                QuizId = attempt.QuizId,
-                CompletedAt = attempt.CompletedAt ?? DateTime.UtcNow,
-                Score = attempt.Score ?? 0,
-                Percentage = attempt.Percentage ?? 0,
-                TotalQuestions = questions.Count,
-                Questions = questions
-            };
-
-            return Ok(reviewDto);
+                return NotFound(knfEx.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
-
-        /// <summary>
-        /// Ottiene la classifica per un quiz specifico
-        /// </summary>
         [HttpGet("leaderboard/{quizId}")]
         public async Task<ActionResult<QuizLeaderboardDto>> GetQuizLeaderboard(Guid quizId, [FromQuery] int limit = 50)
         {
-            var currentUserId = GetCurrentUserId();
-
-            // Verifica che il quiz esista
-            var quizExists = await _context.Quizzes.AnyAsync(q => q.Id == quizId);
-            if (!quizExists)
+            try
             {
-                return NotFound($"Quiz with ID {quizId} not found");
+                var user = await _userManager.GetUserAsync(User);
+                var leaderboard = await _quizAttemptManager.GetQuizLeaderboardAsync(user!.Id, quizId, limit);
+                return Ok(leaderboard);
             }
-
-            // Ottieni i migliori tentativi per ogni utente
-            var groupedAttempts = await _context.QuizAttempts
-                .Where(a => a.QuizId == quizId && a.Score.HasValue)
-                .Include(a => a.User)
-                .ToListAsync();
-
-            var bestAttempts = groupedAttempts
-                .GroupBy(a => a.UserId)
-                .Select(g => g.OrderByDescending(a => a.Percentage)
-                    .ThenByDescending(a => a.Score)
-                    .ThenBy(a => a.CompletedAt)
-                    .First())
-                .OrderByDescending(a => a.Percentage)
-                .ThenByDescending(a => a.Score)
-                .ThenBy(a => a.CompletedAt)
-                .Take(limit)
-                .ToList();
-
-            var entries = bestAttempts.Select((attempt, index) => new LeaderboardEntryDto
+            catch (KeyNotFoundException knfEx)
             {
-                Position = index + 1,
-                UserName = attempt.User.UserName ?? "Unknown",
-                Score = attempt.Score ?? 0,
-                Percentage = attempt.Percentage ?? 0,
-                CompletedAt = attempt.CompletedAt ?? DateTime.MinValue,
-                IsCurrentUser = attempt.UserId == currentUserId
-            }).ToList();
-
-            return Ok(new QuizLeaderboardDto
+                return NotFound(knfEx.Message);
+            }
+            catch (Exception)
             {
-                QuizId = quizId,
-                Entries = entries
-            });
+                return StatusCode(500, "Internal server error");
+            }
         }
-
-        /// <summary>
-        /// Ottiene tutti i tentativi dell'utente corrente per un quiz
-        /// </summary>
         [HttpGet("my-attempts/{quizId}")]
         public async Task<ActionResult<List<QuizAttemptResultDto>>> GetMyAttempts(Guid quizId)
         {
-            var userId = GetCurrentUserId();
-
-            var attempts = await _context.QuizAttempts
-                .Where(a => a.QuizId == quizId && a.UserId == userId && a.Score.HasValue)
-                .OrderByDescending(a => a.CompletedAt)
-                .Select(a => new QuizAttemptResultDto
-                {
-                    Id = a.Id,
-                    QuizId = a.QuizId,
-                    CompletedAt = a.CompletedAt ?? DateTime.MinValue,
-                    Score = a.Score ?? 0,
-                    Percentage = a.Percentage ?? 0,
-                    TotalQuestions = a.UserAnswers.Count()
-                })
-                .ToListAsync();
-
-            return Ok(attempts);
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var attempts = await _quizAttemptManager.GetUserAttemptsAsync(quizId, user!.Id);
+                return Ok(attempts);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

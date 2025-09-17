@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server_web.Application.Managers;
 using server_web.Data;
 using server_web.Model;
 using server_web.Model.Dto;
@@ -13,14 +14,22 @@ namespace server_web.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly IFriendshipManager _friendshipManager;
+        private readonly IQuizManager _quizManager;
+        private readonly ILikeManager _likeManager;
+        private readonly IQuizAttemptManager _quizAttemptManager;
         public UserController(
-            ApplicationDbContext context,
+            IFriendshipManager friendshipManager,
+            IQuizManager quizManager,
+            ILikeManager likeManager,
+            IQuizAttemptManager quizAttemptManager,
             UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _friendshipManager = friendshipManager;
+            _likeManager = likeManager;
+            _quizManager = quizManager;
+            _quizAttemptManager = quizAttemptManager;
             _userManager = userManager;
         }
         [HttpGet("GetProfile")]
@@ -29,22 +38,17 @@ namespace server_web.Controllers
             if (userId == null)
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                    return Unauthorized("User not authenticated");
-                userId = user.Id;
+                userId = user!.Id;
             }
             var userEntity = await _userManager.FindByIdAsync(userId);
             if (userEntity == null)
                 return NotFound("User not found");
-            var friendCountReceived = await _context.Friendships
-                .CountAsync(f => f.ReceiverId == userId && f.Accepted);
-            var friendCountSend = await _context.Friendships
-                .CountAsync(f => f.SenderId == userId && f.Accepted);
+            var friend = await _friendshipManager.UserFriendsAsync(userId);
             var profile = new UserProfileDTO
             {
                 UserId = userId,
                 Email = userEntity.Email!,
-                FriendsCount = friendCountReceived + friendCountSend,
+                FriendsCount = friend.Count(),
             };
             return Ok(profile);
         }
@@ -52,31 +56,21 @@ namespace server_web.Controllers
         public async Task<ActionResult<IEnumerable<Quiz>>> GetFeed()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not authenticated");
-            var userId = user.Id;
-            var friendIdsReceived = await _context.Friendships
-                .Where(f => f.ReceiverId == userId && f.Accepted)
-                .Select(f => f.SenderId)
-                .ToListAsync();
-            var friendIdsSend = await _context.Friendships
-                .Where(f => f.SenderId == userId && f.Accepted)
-                .Select(f => f.ReceiverId)
-                .ToListAsync();
-            var friendIds = friendIdsReceived.Concat(friendIdsSend).ToList();
-            var recentQuizzes = await _context.Quizzes
-                .Where(q => friendIds.Contains(q.UserId))
-                .OrderByDescending(q => q.CreatedAt)
-                .Take(20)
-                .ToListAsync();
-            return Ok(recentQuizzes);
+            var userId = user!.Id;
+            var friends = await _friendshipManager.UserFriendsAsync(userId);
+            var friendsId = friends.Select(f => f.FriendId).ToList();
+            var recentQuizzes = new List<Quiz>();
+            foreach (var friendId in friendsId)
+            {
+                var quizzes = await _quizManager.GetQuizzesAsync(friendId);
+                recentQuizzes.AddRange(quizzes);
+            }
+            return Ok(recentQuizzes.Take(20));
         }
         [HttpGet("GetSettings")]
         public async Task<ActionResult<SettingsDto>> GetSettings()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not authenticated");
             var settings = new SettingsDto
             {
                 UserId = user.Id,
@@ -88,34 +82,17 @@ namespace server_web.Controllers
         [HttpGet("GetLikedQuizzes")]
         public async Task<ActionResult<IEnumerable<Quiz>>> GetLikedQuizzes()
         {
+
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-            var quizIds = _context.LikeQuizzes
-                .Where(qa => qa.UserId == user.Id)
-                .Select(qa => qa.QuizId)
-                .ToList();
-            var quizzes = new List<Quiz>();
-            foreach (var id in quizIds)
-            {
-                quizzes.Add(await _context.Quizzes.FindAsync(id));
-            }
+            var quizzes = await _likeManager.GetLikedQuizzesAsync(user!.Id);
             return Ok(quizzes);
         }
         [HttpGet("GetAttemptedQuizzes")]
         public async Task<ActionResult<IEnumerable<Quiz>>> GetAttemptedQuizzes()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-            var quizIds = _context.QuizAttempts
-                .Where(qa => qa.UserId == user.Id)
-                .Select(qa => qa.QuizId)
-                .ToList();
-            var quizzes = new HashSet<Quiz>();
-            foreach(var id in quizIds)
-            {
-                quizzes.Add(await _context.Quizzes.FindAsync(id));
-            }
-            return Ok(quizzes);
+            var quizzes = await _quizAttemptManager.GetAllAttemptedQuiz(user!.Id);
+            return Ok(new HashSet<Quiz>(quizzes));
         }
     }
 }

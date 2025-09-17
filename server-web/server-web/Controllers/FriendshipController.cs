@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using server_web.Application.Managers;
-using server_web.Data;
+using server_web.Exceptions;
 using server_web.Model;
 using server_web.Model.Dto;
 
@@ -25,69 +23,92 @@ namespace server_web.Controllers
         [HttpGet("requests/")]
         public async Task<ActionResult<IEnumerable<FriendRequestDto>>> MyRequests()
         {
-            var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null) 
-                return BadRequest("not logged in");
-
-            var received = await _friendshipManager.UserRequestsAsync(current_user.Id);
-
-            return Ok(received);
+            try
+            {
+                var current_user = await _userManager.GetUserAsync(User);
+                var received = await _friendshipManager.UserRequestsAsync(current_user!.Id);
+                return Ok(received);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
         [HttpPost("send-request/{email}")]
         public async Task<ActionResult<Friendship>> SendRequest(string email)
         {
-            var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null) 
-                return Unauthorized("not logged in");
+            try
+            {
+                var current_user = await _userManager.GetUserAsync(User);
 
-            var requested_user = await _userManager.FindByEmailAsync(email);
-            if (requested_user == null) 
-                return BadRequest("user does not exist");
+                var requested_user = await _userManager.FindByEmailAsync(email);
+                if (requested_user == null)
+                    return BadRequest("user does not exist");
 
-            var friendship = await _friendshipManager.SendRequestsAsync(current_user.Id, requested_user.Id);
+                var friendship = await _friendshipManager.SendRequestsAsync(current_user!.Id, requested_user.Id);
 
-            return Ok(friendship);
+                return Ok(friendship);
+            }
+            catch (FriendRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
         [HttpPut("accept-request/{friendshipId}")]
         public async Task<ActionResult<Friendship>> AcceptRequest(Guid friendshipId)
         {
-            var current_user = await _userManager.GetUserAsync(User);
-            if (current_user == null) return Unauthorized("not logged in");
             try
             {
-                var request = await _friendshipManager.AcceptRequestAsync(current_user.Id, friendshipId);
+                var current_user = await _userManager.GetUserAsync(User);
+                var request = await _friendshipManager.AcceptRequestAsync(current_user!.Id, friendshipId);
                 return Ok(request);
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(knfEx.Message);
             }
             catch (Exception)
             {
-                return BadRequest("request has already been sent");
+                return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpGet("friend-list")]
         public async Task<ActionResult<List<FriendDto>>> FriendList()
         {
-            var current_user = await _userManager.GetUserAsync(User);
-
-            if (current_user == null) 
-                return Unauthorized("not logged in");
-
-            var friendships = await _friendshipManager.UserFriendsAsync(current_user.Id);
-
-            return Ok(friendships);
+            try
+            {
+                var current_user = await _userManager.GetUserAsync(User);
+                var friendships = await _friendshipManager.UserFriendsAsync(current_user!.Id);
+                return Ok(friendships);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("remove-friendship/{friendshipId}")]
         public async Task<ActionResult> RemoveFriendship(Guid friendshipId)
         {
-            var current_user = await _userManager.GetUserAsync(User);
-
-            if (current_user == null) 
-                return Unauthorized("not logged in");
-
-            await _friendshipManager.RemoveFriendAsync(current_user.Id, friendshipId);
-
-            return NoContent();
+            try
+            {
+                var current_user = await _userManager.GetUserAsync(User);
+                await _friendshipManager.RemoveFriendAsync(current_user!.Id, friendshipId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException knf)
+            {
+                return BadRequest(knf.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

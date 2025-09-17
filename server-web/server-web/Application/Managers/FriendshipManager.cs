@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server_web.Data.Repository.IRepository;
+using server_web.Exceptions;
 using server_web.Model;
 using server_web.Model.Dto;
 
@@ -23,7 +24,7 @@ namespace server_web.Application.Managers
             var exists = await _unitOfWork.Friendship
                 .GetFirstOrDefaultAsync(f => f.SenderId == senderId && f.ReceiverId == receiverId);
             if (exists != null) 
-                throw new Exception("Richiesta già inviata");
+                throw new FriendRequestException("Richiesta già inviata");
             var exists_reverse = await _unitOfWork.Friendship
                 .GetFirstOrDefaultAsync(f => f.ReceiverId == senderId && f.SenderId == receiverId);
             if (exists_reverse != null) 

@@ -25,6 +25,8 @@ namespace server_web.Application.Managers
         public async Task<QuizDto?> GetQuizAsync(Guid id)
         {
             var quiz = await _unitOfWork.Quiz.GetQuizWithQuestions(id);
+            if (quiz == null)
+                throw new KeyNotFoundException("Quiz not found");
             return new QuizDto(quiz);
         }
         public async Task<Quiz> CreateQuizAsync(string topic, string userId)
