@@ -12,19 +12,23 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["server-web/server-web.csproj", "server-web/"]
-RUN dotnet restore "./server-web/server-web.csproj"
+COPY ["QuizAI.API/QuizAI.API.csproj", "QuizAI.API/"]
+COPY ["QuizAI.Application/QuizAI.Application.csproj", "QuizAI.Application/"]
+COPY ["QuizAI.Model/QuizAI.Model.csproj", "QuizAI.Model/"]
+COPY ["QuizAI.Data/QuizAI.Data.csproj", "QuizAI.Data/"]
+COPY ["QuizAI.Exceptions/QuizAI.Exceptions.csproj", "QuizAI.Exceptions/"]
+RUN dotnet restore "./QuizAI.API/QuizAI.API.csproj"
 COPY . .
-WORKDIR "/src/server-web"
-RUN dotnet build "./server-web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/QuizAI.API"
+RUN dotnet build "./QuizAI.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Questa fase viene usata per pubblicare il progetto di servizio da copiare nella fase finale
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./server-web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./QuizAI.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Questa fase viene usata nell'ambiente di produzione o durante l'esecuzione da Visual Studio in modalità normale (impostazione predefinita quando non si usa la configurazione di debug)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "server-web.dll"]
+ENTRYPOINT ["dotnet", "QuizAI.API.dll"]
