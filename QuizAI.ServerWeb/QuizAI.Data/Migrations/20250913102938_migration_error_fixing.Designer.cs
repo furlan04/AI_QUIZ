@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizAI.Data;
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250913102938_migration_error_fixing")]
+    partial class migration_error_fixing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -328,9 +331,6 @@ namespace QuizAI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime(6)");
 
@@ -349,8 +349,6 @@ namespace QuizAI.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("QuizId");
 
@@ -504,10 +502,6 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("server_web.Model.QuizAttempt", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
-                        .WithMany("QuizAttempts")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("server_web.Model.Quiz", "Quiz")
                         .WithMany("Attempts")
                         .HasForeignKey("QuizId")
@@ -547,8 +541,6 @@ namespace QuizAI.Migrations
             modelBuilder.Entity("server_web.Model.ApplicationUser", b =>
                 {
                     b.Navigation("LikedQuizzes");
-
-                    b.Navigation("QuizAttempts");
 
                     b.Navigation("Quizzes");
 

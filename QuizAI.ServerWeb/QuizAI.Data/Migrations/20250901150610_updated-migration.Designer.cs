@@ -9,11 +9,11 @@ using QuizAI.Data;
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250913102938_migration_error_fixing")]
-    partial class migration_error_fixing
+    [Migration("20250901150610_updated-migration")]
+    partial class updatedmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -248,21 +248,6 @@ namespace QuizAI.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
-                {
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("QuizId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("LikeQuizzes");
-                });
-
             modelBuilder.Entity("server_web.Model.Question", b =>
                 {
                     b.Property<Guid>("QuizId")
@@ -307,6 +292,9 @@ namespace QuizAI.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -319,6 +307,8 @@ namespace QuizAI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("IsActive");
 
                     b.HasIndex("UserId", "CreatedAt");
 
@@ -455,25 +445,6 @@ namespace QuizAI.Migrations
                     b.Navigation("SendingUser");
                 });
 
-            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
-                {
-                    b.HasOne("server_web.Model.Quiz", "Quiz")
-                        .WithMany("LikedByUsers")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("server_web.Model.ApplicationUser", "User")
-                        .WithMany("LikedQuizzes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("server_web.Model.Question", b =>
                 {
                     b.HasOne("server_web.Model.Quiz", "Quiz")
@@ -540,8 +511,6 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("server_web.Model.ApplicationUser", b =>
                 {
-                    b.Navigation("LikedQuizzes");
-
                     b.Navigation("Quizzes");
 
                     b.Navigation("ReceivedRequests");
@@ -557,8 +526,6 @@ namespace QuizAI.Migrations
             modelBuilder.Entity("server_web.Model.Quiz", b =>
                 {
                     b.Navigation("Attempts");
-
-                    b.Navigation("LikedByUsers");
 
                     b.Navigation("Questions");
                 });

@@ -9,11 +9,11 @@ using QuizAI.Data;
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250901150610_updated-migration")]
-    partial class updatedmigration
+    [Migration("20250913102457_added_quiz_removed_completed")]
+    partial class added_quiz_removed_completed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -248,6 +248,31 @@ namespace QuizAI.Migrations
                     b.ToTable("Friendships");
                 });
 
+            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
+                {
+                    b.Property<Guid>("QuizId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid?>("QuizId1")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("QuizId", "UserId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("QuizId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LikeQuizzes");
+                });
+
             modelBuilder.Entity("server_web.Model.Question", b =>
                 {
                     b.Property<Guid>("QuizId")
@@ -292,9 +317,6 @@ namespace QuizAI.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -307,8 +329,6 @@ namespace QuizAI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("IsActive");
 
                     b.HasIndex("UserId", "CreatedAt");
 
@@ -445,6 +465,33 @@ namespace QuizAI.Migrations
                     b.Navigation("SendingUser");
                 });
 
+            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
+                {
+                    b.HasOne("server_web.Model.ApplicationUser", null)
+                        .WithMany("LikedQuizzes")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("server_web.Model.Quiz", "Quiz")
+                        .WithMany()
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("server_web.Model.Quiz", null)
+                        .WithMany("LikedByUsers")
+                        .HasForeignKey("QuizId1");
+
+                    b.HasOne("server_web.Model.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("server_web.Model.Question", b =>
                 {
                     b.HasOne("server_web.Model.Quiz", "Quiz")
@@ -511,6 +558,8 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("server_web.Model.ApplicationUser", b =>
                 {
+                    b.Navigation("LikedQuizzes");
+
                     b.Navigation("Quizzes");
 
                     b.Navigation("ReceivedRequests");
@@ -526,6 +575,8 @@ namespace QuizAI.Migrations
             modelBuilder.Entity("server_web.Model.Quiz", b =>
                 {
                     b.Navigation("Attempts");
+
+                    b.Navigation("LikedByUsers");
 
                     b.Navigation("Questions");
                 });

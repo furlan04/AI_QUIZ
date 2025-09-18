@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     /// <inheritdoc />
     public partial class forgotten_attempted_quiz_navigation_property : Migration

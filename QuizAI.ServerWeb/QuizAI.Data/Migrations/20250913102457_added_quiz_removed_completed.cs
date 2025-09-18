@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     /// <inheritdoc />
     public partial class added_quiz_removed_completed : Migration

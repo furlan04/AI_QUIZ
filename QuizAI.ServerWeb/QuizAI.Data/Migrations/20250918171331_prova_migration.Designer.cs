@@ -9,11 +9,11 @@ using QuizAI.Data;
 
 #nullable disable
 
-namespace QuizAI.Migrations
+namespace QuizAI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250915064549_forgotten_attempted_quiz_navigation_property")]
-    partial class forgotten_attempted_quiz_navigation_property
+    [Migration("20250918171331_prova_migration")]
+    partial class prova_migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,7 +157,7 @@ namespace QuizAI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("server_web.Model.ApplicationUser", b =>
+            modelBuilder.Entity("QuizAI.Model.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
@@ -221,7 +221,7 @@ namespace QuizAI.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("server_web.Model.Friendship", b =>
+            modelBuilder.Entity("QuizAI.Model.Friendship", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -248,7 +248,7 @@ namespace QuizAI.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
+            modelBuilder.Entity("QuizAI.Model.LikeQuiz", b =>
                 {
                     b.Property<Guid>("QuizId")
                         .HasColumnType("char(36)");
@@ -263,7 +263,7 @@ namespace QuizAI.Migrations
                     b.ToTable("LikeQuizzes");
                 });
 
-            modelBuilder.Entity("server_web.Model.Question", b =>
+            modelBuilder.Entity("QuizAI.Model.Question", b =>
                 {
                     b.Property<Guid>("QuizId")
                         .HasColumnType("char(36)");
@@ -291,7 +291,7 @@ namespace QuizAI.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("server_web.Model.Quiz", b =>
+            modelBuilder.Entity("QuizAI.Model.Quiz", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -325,7 +325,7 @@ namespace QuizAI.Migrations
                     b.ToTable("Quizzes");
                 });
 
-            modelBuilder.Entity("server_web.Model.QuizAttempt", b =>
+            modelBuilder.Entity("QuizAI.Model.QuizAttempt", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -362,7 +362,7 @@ namespace QuizAI.Migrations
                     b.ToTable("QuizAttempts");
                 });
 
-            modelBuilder.Entity("server_web.Model.UserAnswer", b =>
+            modelBuilder.Entity("QuizAI.Model.UserAnswer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -401,7 +401,7 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -410,7 +410,7 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -425,7 +425,7 @@ namespace QuizAI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -434,22 +434,22 @@ namespace QuizAI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("server_web.Model.Friendship", b =>
+            modelBuilder.Entity("QuizAI.Model.Friendship", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", "ReceivingUser")
+                    b.HasOne("QuizAI.Model.ApplicationUser", "ReceivingUser")
                         .WithMany("ReceivedRequests")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("server_web.Model.ApplicationUser", "SendingUser")
+                    b.HasOne("QuizAI.Model.ApplicationUser", "SendingUser")
                         .WithMany("SentRequests")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -460,15 +460,15 @@ namespace QuizAI.Migrations
                     b.Navigation("SendingUser");
                 });
 
-            modelBuilder.Entity("server_web.Model.LikeQuiz", b =>
+            modelBuilder.Entity("QuizAI.Model.LikeQuiz", b =>
                 {
-                    b.HasOne("server_web.Model.Quiz", "Quiz")
+                    b.HasOne("QuizAI.Model.Quiz", "Quiz")
                         .WithMany("LikedByUsers")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server_web.Model.ApplicationUser", "User")
+                    b.HasOne("QuizAI.Model.ApplicationUser", "User")
                         .WithMany("LikedQuizzes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -479,9 +479,9 @@ namespace QuizAI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server_web.Model.Question", b =>
+            modelBuilder.Entity("QuizAI.Model.Question", b =>
                 {
-                    b.HasOne("server_web.Model.Quiz", "Quiz")
+                    b.HasOne("QuizAI.Model.Quiz", "Quiz")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -490,13 +490,13 @@ namespace QuizAI.Migrations
                     b.Navigation("Quiz");
                 });
 
-            modelBuilder.Entity("server_web.Model.Quiz", b =>
+            modelBuilder.Entity("QuizAI.Model.Quiz", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany("Quizzes")
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("server_web.Model.ApplicationUser", "User")
+                    b.HasOne("QuizAI.Model.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -505,19 +505,19 @@ namespace QuizAI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server_web.Model.QuizAttempt", b =>
+            modelBuilder.Entity("QuizAI.Model.QuizAttempt", b =>
                 {
-                    b.HasOne("server_web.Model.ApplicationUser", null)
+                    b.HasOne("QuizAI.Model.ApplicationUser", null)
                         .WithMany("QuizAttempts")
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("server_web.Model.Quiz", "Quiz")
+                    b.HasOne("QuizAI.Model.Quiz", "Quiz")
                         .WithMany("Attempts")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("server_web.Model.ApplicationUser", "User")
+                    b.HasOne("QuizAI.Model.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -528,15 +528,15 @@ namespace QuizAI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server_web.Model.UserAnswer", b =>
+            modelBuilder.Entity("QuizAI.Model.UserAnswer", b =>
                 {
-                    b.HasOne("server_web.Model.QuizAttempt", "QuizAttempt")
+                    b.HasOne("QuizAI.Model.QuizAttempt", "QuizAttempt")
                         .WithMany("UserAnswers")
                         .HasForeignKey("QuizAttemptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server_web.Model.Question", "Question")
+                    b.HasOne("QuizAI.Model.Question", "Question")
                         .WithMany("UserAnswers")
                         .HasForeignKey("QuestionQuizId", "QuestionOrder")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -547,7 +547,7 @@ namespace QuizAI.Migrations
                     b.Navigation("QuizAttempt");
                 });
 
-            modelBuilder.Entity("server_web.Model.ApplicationUser", b =>
+            modelBuilder.Entity("QuizAI.Model.ApplicationUser", b =>
                 {
                     b.Navigation("LikedQuizzes");
 
@@ -560,12 +560,12 @@ namespace QuizAI.Migrations
                     b.Navigation("SentRequests");
                 });
 
-            modelBuilder.Entity("server_web.Model.Question", b =>
+            modelBuilder.Entity("QuizAI.Model.Question", b =>
                 {
                     b.Navigation("UserAnswers");
                 });
 
-            modelBuilder.Entity("server_web.Model.Quiz", b =>
+            modelBuilder.Entity("QuizAI.Model.Quiz", b =>
                 {
                     b.Navigation("Attempts");
 
@@ -574,7 +574,7 @@ namespace QuizAI.Migrations
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("server_web.Model.QuizAttempt", b =>
+            modelBuilder.Entity("QuizAI.Model.QuizAttempt", b =>
                 {
                     b.Navigation("UserAnswers");
                 });
