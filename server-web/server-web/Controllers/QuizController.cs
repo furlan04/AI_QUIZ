@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using server_web.Data;
 using server_web.Model;
-using server_web.Model.Dto;
-using server_web.Application.ExternalServices.Quiz;
-using System.Text.Json;
 using server_web.Application.Managers;
 
 namespace server_web.Controllers

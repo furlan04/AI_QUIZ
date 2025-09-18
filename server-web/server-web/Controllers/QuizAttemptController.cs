@@ -60,9 +60,9 @@ namespace server_web.Controllers
             {
                 return NotFound(knfEx.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet("leaderboard/{quizId}")]

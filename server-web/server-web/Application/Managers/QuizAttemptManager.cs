@@ -135,7 +135,8 @@ namespace server_web.Application.Managers
         public async Task<QuizAttemptReviewDto> GetQuizAttemptReviewAsync(Guid attemptId, string userId)
         {
             var attempt = await _unitOfWork.QuizAttempt
-                .GetFirstOrDefaultAsync(qa => qa.Id == attemptId && qa.UserId == userId, "UserAnswers,Question");
+                .GetFirstOrDefaultAsync(qa => qa.Id == attemptId && qa.UserId == userId, "UserAnswers");
+            var quiz = await _unitOfWork.Quiz.GetQuizWithQuestions(attempt!.QuizId);
             if (attempt == null)
                 throw new KeyNotFoundException($"Attempt with ID {attemptId} not found");
             var questions = attempt.UserAnswers
@@ -144,10 +145,10 @@ namespace server_web.Application.Managers
                 {
                     QuestionQuizId = ua.QuestionQuizId,
                     QuestionOrder = ua.QuestionOrder,
-                    QuestionText = ua.Question.Text,
-                    Options = ua.Question.Options,
+                    QuestionText = quiz.Questions.Where(q => q.Order == ua.QuestionOrder).Select(q => q.Text).First(),
+                    Options = quiz.Questions.Where(q => q.Order == ua.QuestionOrder).Select(q => q.Options).First(),
                     SelectedAnswerIndex = ua.SelectedAnswerIndex,
-                    CorrectAnswerIndex = ua.Question.CorrectAnswerIndex,
+                    CorrectAnswerIndex = quiz.Questions.Where(q => q.Order == ua.QuestionOrder).Select(q => q.CorrectAnswerIndex).First(),
                     IsCorrect =ua.IsCorrect,
                 })
                 .ToList();
