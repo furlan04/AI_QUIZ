@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
-using server_web.Services.Settings;
+using server_web.Application.Settings;
 using System.Net;
 using System.Net.Mail;
 
-namespace server_web.Services.Email
+namespace server_web.Application.ExternalServices.Email
 {
     public class EmailService : IEmailService
     {

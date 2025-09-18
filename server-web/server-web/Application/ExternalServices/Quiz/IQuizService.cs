@@ -1,6 +1,6 @@
 ﻿using server_web.Model;
 
-namespace server_web.Services.Quiz
+namespace server_web.Application.ExternalServices.Quiz
 {
     public interface IQuizService
     {

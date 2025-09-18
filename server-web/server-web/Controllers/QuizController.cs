@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using server_web.Data;
 using server_web.Model;
-using server_web.Model.Dto;
-using server_web.Services.Quiz;
-using System.Text.Json;
+using server_web.Application.Managers;
 
 namespace server_web.Controllers
 {
@@ -15,109 +11,87 @@ namespace server_web.Controllers
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IQuizManager _quizManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IQuizService _quizService;
-
-        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IQuizService quizService)
+        public QuizController(UserManager<ApplicationUser> userManager, IQuizManager quizManager)
         {
-            _context = context;
             _userManager = userManager;
-            _quizService = quizService;
+            _quizManager = quizManager;
         }
         // GET: api/Quiz
         [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes(string? userId = null)
         {
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                    return Unauthorized("User not authenticated");
-                userId = user.Id;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    userId = user!.Id;
+                }
+                var quizzes = await _quizManager.GetQuizzesAsync(userId);
+                return Ok(quizzes);
             }
-
-            var quizzes = await _context.Quizzes
-                .Where(q => q.UserId == userId)
-                .ToListAsync();
-
-            return Ok(quizzes);
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         // GET: api/Quiz/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Quiz>> GetQuiz(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return Unauthorized();
-
-            var quiz = await _context.Quizzes
-                .Include(q => q.Questions)
-                .FirstOrDefaultAsync(q => q.Id == id);
-
-            if (quiz == null) return NotFound();
-
-            var return_obj = new QuizDto(quiz);
-
-            return Ok(return_obj);
+            try
+            {
+                var quiz = await _quizManager.GetQuizAsync(id);
+                return Ok(quiz);
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(knfEx.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         // POST: api/Quiz
         [HttpPost("{topic}")]
         public async Task<ActionResult<Quiz>> CreateQuiz(string topic)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if(user == null) return Unauthorized();
-
-            var generated_quiz = await _quizService.GenerateQuizAsync(topic);
-
-            var quiz = new Quiz
+            try
             {
-                Title = generated_quiz.Title,
-                Description = generated_quiz.Description,
-                UserId = user.Id,
-            };
-
-            _context.Quizzes.Add(quiz);
-
-            foreach (var q in generated_quiz.Questions)
-            {
-                var question = new Question
-                {
-                    QuizId = quiz.Id,
-                    OptionsJson = JsonSerializer.Serialize(q.Options),
-                    Text = q.Text,
-                    CorrectAnswerIndex = q.CorrectAnswerIndex,
-                    Order = q.Order,
-                };
-                _context.Questions.Add(question);
+                var user = await _userManager.GetUserAsync(User);
+                var quiz = await _quizManager.CreateQuizAsync(topic, user!.Id);
+                return CreatedAtAction(nameof(GetQuiz), new { id = quiz.Id }, quiz);
             }
-
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetQuiz), new { id = quiz.Id }, quiz);
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         // DELETE: api/Quiz/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuiz(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return Unauthorized();
-
-            var quiz = await _context.Quizzes
-                .FirstOrDefaultAsync(q => q.Id == id && q.UserId == user.Id);
-
-            if (quiz == null) return NotFound();
-
-            _context.Quizzes.Remove(quiz);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                await _quizManager.DeleteQuizAsync(id, user!.Id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException knfEx)
+            {
+                return NotFound(knfEx.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

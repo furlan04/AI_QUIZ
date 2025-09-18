@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server_web.Data;
 using server_web.Model;
-using server_web.Services.Email;
-using server_web.Services.Quiz;
-using server_web.Services.Settings;
+using server_web.Application.ExternalServices.Email;
+using server_web.Application.ExternalServices.Quiz;
+using server_web.Application.Settings;
 using System.Text;
+using server_web.Data.Repository.IRepository;
+using server_web.Data.Repository;
+using server_web.Application.Managers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,6 +110,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IQuizManager, QuizManager>();
+builder.Services.AddScoped<IFriendshipManager, FriendshipManager>();
+builder.Services.AddScoped<IQuizAttemptManager, QuizAttemptManager>();
+builder.Services.AddScoped<ILikeManager, LikeManager>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddHttpClient<IQuizService, QuizService>();
 

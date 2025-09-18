@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using server_web.Services.Quiz;
-using server_web.Services.Settings;
+using server_web.Application.ExternalServices.Quiz;
+using server_web.Application.Settings;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+namespace server_web.Application.ExternalServices.Quiz;
 public class QuizService : IQuizService
 {
     private readonly HttpClient _http;
