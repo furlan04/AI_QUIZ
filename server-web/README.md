@@ -1,1 +1,0 @@
-aggiungere all'interno del file appsettings.json le proprio chiavi di API e altre informazioni richieste
