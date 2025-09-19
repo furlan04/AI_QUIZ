@@ -33,20 +33,46 @@ namespace QuizAI.Controllers
         [HttpGet("GetProfile")]
         public async Task<ActionResult<UserProfileDTO>> GetProfile(string? userId = null)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (userId == null)
             {
-                var user = await _userManager.GetUserAsync(User);
                 userId = user!.Id;
             }
+            var isCurrentUser = userId == user!.Id;
             var userEntity = await _userManager.FindByIdAsync(userId);
             if (userEntity == null)
                 return NotFound("User not found");
             var friend = await _friendshipManager.UserFriendsAsync(userId);
+            var friendship = friend.FirstOrDefault(f => f.FriendId == user!.Id);
+            var isFriend = friendship != null;
+            var requests = await _friendshipManager.UserRequestsAsync(userId);
+            if (!isCurrentUser && !isFriend)
+            {
+                var haveSentRequest = requests.Any(r => r.Email == user!.Email);
+                if (haveSentRequest)
+                {
+                    var profileWithRequest = new UserProfileDTO
+                    {
+                        UserId = userId,
+                        Email = userEntity.Email!,
+                        FriendsCount = friend.Count(),
+                        IsCurrentUser = isCurrentUser,
+                        FriendshipId = null,
+                        IsFriend = isFriend,
+                        HaveSentRequest = true
+                    };
+                    return Ok(profileWithRequest);
+                }
+            }
             var profile = new UserProfileDTO
             {
                 UserId = userId,
                 Email = userEntity.Email!,
                 FriendsCount = friend.Count(),
+                IsCurrentUser = isCurrentUser,
+                FriendshipId = friendship != null ? friendship.FriendshipId : null,
+                IsFriend = isFriend,
+                HaveSentRequest = false
             };
             return Ok(profile);
         }

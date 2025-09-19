@@ -3,11 +3,16 @@ import {
   getUserProfile,
   getSpecificUserProfile,
 } from "../services/UserService";
+import {
+  sendFriendshipRequest,
+  removeFriendship,
+} from "../services/FriendshipService";
 import { useParams } from "react-router-dom";
 
 import { getAuthToken } from "../services/CommonService";
 import { useNavigate } from "react-router-dom";
 import "../styles/settings.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
@@ -15,7 +20,6 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { userId } = useParams();
-  
 
   const getInitials = (email) => {
     if (!email) return "?";
@@ -121,17 +125,62 @@ const ProfilePage = () => {
                 >
                   Vedi Quiz
                 </button>
-                {/*
-                <button
-                  className={`btn btn-action ${
-                    profile.friendStatus ? "btn-outline" : "btn-primary"
-                  }`}
-                >
-                  {profile.friendStatus
-                    ? "Rimuovi Amicizia"
-                    : "Aggiungi Amicizia"}
-                </button>
-                */}
+                {!profile.isCurrentUser && !profile.haveSentRequest && (
+                  <AnimatePresence mode="wait">
+                    <motion.button
+                      key={profile.isFriend ? "remove" : "add"} // cambia la key per forzare transizione
+                      className={`btn btn-action ${
+                        profile.friendStatus ? "btn-outline" : "btn-primary"
+                      }`}
+                      onClick={async () => {
+                        try {
+                          if (profile.isFriend) {
+                            await removeFriendship(
+                              profile.friendshipId,
+                              getAuthToken()
+                            );
+                            setProfile({ ...profile, isFriend: false, haveSentRequest: false });
+                          } else {
+                            await sendFriendshipRequest(
+                              profile.email,
+                              getAuthToken()
+                            );
+                            setProfile({ ...profile, isFriend: true, haveSentRequest: true});
+                          }
+                        } catch (err) {
+                          console.error(
+                            "Errore nell'aggiornamento dello stato di amicizia",
+                            err
+                          );
+                        }
+                      }}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {profile.isFriend
+                        ? "Rimuovi Amicizia"
+                        : "Aggiungi Amicizia"}
+                    </motion.button>
+                  </AnimatePresence>
+                )}
+                { profile.haveSentRequest && !profile.isCurrentUser && (
+                  <button
+                    className="btn btn-action btn-secondary"
+                    disabled
+                  >
+                    Richiesta Inviata 📨
+                  </button>
+                )}
+                { profile.isCurrentUser && (
+                  <button
+                    className="btn btn-action btn-secondary"
+                    onClick={() => navigate("/settings")}
+                  >
+                    Impostazioni Account 🛠️
+                  </button>
+                )}
               </div>
             </div>
           </div>
