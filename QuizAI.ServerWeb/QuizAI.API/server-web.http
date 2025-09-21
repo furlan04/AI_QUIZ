@@ -1,6 +1,0 @@
-@server_web_HostAddress = http://localhost:5231
-
-GET {{server_web_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
