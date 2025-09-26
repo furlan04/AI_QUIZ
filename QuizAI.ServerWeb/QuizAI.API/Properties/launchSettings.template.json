@@ -1,7 +1,3 @@
-aggiungere all'interno del file appsettings.json le proprio chiavi di API e altre informazioni richieste
-
-inoltre per poter visualizzare correttamente lo swagger eseguire il comando dotnet restore e modificare launchsettings.json come segue
-
 {
   "profiles": {
     "http": {
